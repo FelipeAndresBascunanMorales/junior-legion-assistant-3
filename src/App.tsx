@@ -1,5 +1,4 @@
 
-import './App.css'
 import { TreeView } from './components/TreeView';
 import { useTreeState } from './hooks/useTreeState';
 

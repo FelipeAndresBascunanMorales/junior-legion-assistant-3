@@ -112,7 +112,7 @@ export function TreeNode({
           </button>
         </div>
 
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2">
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-10">
           <button
             onClick={() => onAddChild(node.id)}
             className="p-1 bg-white border rounded-full shadow-sm hover:bg-gray-50"

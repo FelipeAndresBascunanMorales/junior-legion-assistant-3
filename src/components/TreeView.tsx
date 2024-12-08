@@ -1,6 +1,5 @@
 import { TreeNode as TreeNodeComponent } from './TreeNode';
 import { TreeNode as TreeNodeType } from '../types/tree';
-import { useState } from 'react';
 
 interface TreeViewProps {
   tree: TreeNodeType;
@@ -19,24 +18,6 @@ export function TreeView({
   onDelete,
   onZoomIn
 }: TreeViewProps) {
-  const [zoomedNodeId, setZoomedNodeId] = useState<string | null>(null);
-
-  const findNode = (node: TreeNodeType, id: string): TreeNodeType | null => {
-    if (node.id === id) return node;
-    
-    if (node.children) {
-      for (const child of node.children) {
-        const found = findNode(child, id);
-        if (found) return found;
-      }
-    }
-    
-    return null;
-  };
-
-  const currentTree = zoomedNodeId ? findNode(tree, zoomedNodeId) : tree;
-
-  if (!currentTree) return null;
 
   const renderNode = (node: TreeNodeType) => (
     <div key={node.id} className="flex flex-col items-center">
@@ -55,7 +36,9 @@ export function TreeView({
       </div>
       {node.children && node.children.length > 0 && (
         <div className="flex gap-8 mt-16">
-          {node.children.map(childNode => renderNode(childNode))}
+          <div className="flex gap-8 pt-16 border px-2 pb-16">
+            {node.children.map(childNode => renderNode(childNode))}
+          </div>
         </div>
       )}
     </div>
@@ -63,15 +46,7 @@ export function TreeView({
 
   return (
     <div className="w-full h-full flex flex-col items-center p-8">
-      {zoomedNodeId && (
-        <button
-          onClick={() => setZoomedNodeId(null)}
-          className="mb-8 flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
-        >
-          Back to Main Tree
-        </button>
-      )}
-      {renderNode(currentTree)}
+      {renderNode(tree)}
     </div>
   );
 }

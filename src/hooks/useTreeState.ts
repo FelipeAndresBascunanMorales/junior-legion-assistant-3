@@ -21,7 +21,6 @@ export function useTreeState() {
     try {
       const parentNode = findNode(tree, parentId);
       if (!parentNode) return;
-
       const newNode: TreeNode = {
         id: generateId(),
         title: 'New Node',
@@ -60,7 +59,6 @@ export function useTreeState() {
     }
   }, [tree, generateContent]);
 
-  // ... rest of the existing code ...
   const updateNodeContent = useCallback((nodeId: string, title: string, description: string) => {
     setTree((current) => {
       function updateNode(node: TreeNode): TreeNode {
@@ -89,11 +87,7 @@ export function useTreeState() {
           const newLockState = !node.isLocked;
           return {
             ...node,
-            isLocked: newLockState,
-            children: node.children ? node.children.map(child => ({
-              ...child,
-              isLocked: newLockState ? true : child.isLocked
-            })) : null,
+            isLocked: newLockState
           };
         }
 
@@ -103,9 +97,7 @@ export function useTreeState() {
         };
       }
 
-      let updatedTree = updateNode(current);
-      updatedTree = lockParentNodes(updatedTree, nodeId);
-      return updatedTree;
+      return updateNode(current);
     });
 
 
