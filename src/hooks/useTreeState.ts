@@ -7,7 +7,7 @@ import { findNode, lockParentNodes } from '../utils/tree-utils';
 export function useTreeState() {
   const [tree, setTree] = useState<TreeNode>({
     id: generateId(),
-    title: 'Root',
+    title: 'First Task',
     description: 'Root node description',
     isLocked: false,
     children: null,
@@ -17,7 +17,13 @@ export function useTreeState() {
   // const { generateContent, saveToGithub } = useAIAssistant();
   const { generateContent } = useAIAssistant();
 
-  const addChild = useCallback(async (parentId: string, aiPrompt?: string) => {
+  const generateWithAI = useCallback(async (parentId: string, aiPrompt?: string) => {
+    const parentNode = findNode(tree, parentId);
+    if (!parentNode) return;
+    return await generateContent(parentNode, null, aiPrompt || '');
+  }, [tree]);
+
+  const addChild = useCallback(async (parentId: string) => {
     try {
       const parentNode = findNode(tree, parentId);
       if (!parentNode) return;
@@ -29,12 +35,6 @@ export function useTreeState() {
         children: null,
         parentId
       };
-
-      if (aiPrompt) {
-        const content = await generateContent(newNode, parentNode, aiPrompt);
-        newNode.title = content.title;
-        newNode.description = content.description;
-      }
 
       setTree((current) => {
         function updateNode(node: TreeNode): TreeNode {
@@ -57,7 +57,7 @@ export function useTreeState() {
     } catch (error) {
       console.error('Failed to add child:', error);
     }
-  }, [tree, generateContent]);
+  }, [tree]);
 
   const updateNodeContent = useCallback((nodeId: string, title: string, description: string) => {
     setTree((current) => {
@@ -133,5 +133,5 @@ export function useTreeState() {
     }
   }, [tree]);
 
-  return { tree, addChild, updateNodeContent, toggleLock, deleteNode, zoomIn };
+  return { tree, setTree, addChild, generateWithAI, updateNodeContent, toggleLock, deleteNode, zoomIn };
 }

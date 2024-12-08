@@ -36,7 +36,7 @@ export function TreeView({
       </div>
       {node.children && node.children.length > 0 && (
         <div className="flex gap-8 mt-16">
-          <div className="flex gap-8 pt-16 border px-2 pb-16">
+          <div className="flex gap-8 pt-16 border-2 px-2 pb-16 bg-fuchsia-400/20 rounded-lg ">
             {node.children.map(childNode => renderNode(childNode))}
           </div>
         </div>
@@ -45,7 +45,7 @@ export function TreeView({
   );
 
   return (
-    <div className="w-full h-full flex flex-col items-center p-8">
+    <div className="w-full min-w-auto h-full inline-flex items-center p-8 overflow-x-auto">
       {renderNode(tree)}
     </div>
   );

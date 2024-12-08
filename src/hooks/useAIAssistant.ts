@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { TreeNode } from '../types/tree';
 import { pushTreeToGithub } from '../services/github';
-import { generateNodeContent } from '../services/openai';
+import { generateNodeContent, generateTreeContent } from '../services/openai';
 
 
 export function useAIAssistant() {
@@ -18,6 +18,10 @@ export function useAIAssistant() {
     }
   }, []);
 
+  const generateTree = useCallback(async (prompt: string) => {
+    return await generateTreeContent(null, null, prompt);
+  }, []);
+
   const saveToGithub = useCallback(async (tree: TreeNode) => {
     try {
       await pushTreeToGithub(tree);
@@ -29,6 +33,7 @@ export function useAIAssistant() {
 
   return {
     generateContent,
+    generateTree,
     saveToGithub
   };
 }
