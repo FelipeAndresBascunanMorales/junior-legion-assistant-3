@@ -12,10 +12,27 @@
         "isLocked": false,
         "children": null,
         "parentId": "u10kmy2ac"
+      },
+      {
+        "id": "nd9bmhx7y",
+        "title": "New Node",
+        "description": "Add a description",
+        "isLocked": false,
+        "children": [
+          {
+            "id": "s223ui7iz",
+            "title": "New Node",
+            "description": "Add a description",
+            "isLocked": false,
+            "children": null,
+            "parentId": "nd9bmhx7y"
+          }
+        ],
+        "parentId": "u10kmy2ac"
       }
     ],
     "parentId": null
   },
-  "timestamp": 1733717006193,
+  "timestamp": 1733717208792,
   "version": "1.0.0"
 }
