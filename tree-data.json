@@ -24,7 +24,16 @@
             "title": "New Node",
             "description": "Add a description",
             "isLocked": false,
-            "children": null,
+            "children": [
+              {
+                "id": "crq0xsi09",
+                "title": "New Node",
+                "description": "Add a description",
+                "isLocked": false,
+                "children": null,
+                "parentId": "s223ui7iz"
+              }
+            ],
             "parentId": "nd9bmhx7y"
           }
         ],
@@ -33,6 +42,6 @@
     ],
     "parentId": null
   },
-  "timestamp": 1733717208792,
+  "timestamp": 1733717330888,
   "version": "1.0.0"
 }
