@@ -153,7 +153,6 @@ export function useTreeState() {
     ]
   });
 
-  // const { generateContent, saveToGithub } = useAIAssistant();
   const { generateContent } = useAIAssistant();
 
   const generateWithAI = useCallback(async (parentId: string, aiPrompt?: string) => {
@@ -191,7 +190,6 @@ export function useTreeState() {
         }
 
         const updatedTree = updateNode(current);
-        // saveToGithub(updatedTree).catch(console.error);
         return updatedTree;
       });
     } catch (error) {
@@ -239,8 +237,6 @@ export function useTreeState() {
 
       return updateNode(current);
     });
-
-
   }, []);
 
   const deleteNode = useCallback((nodeId: string) => {
