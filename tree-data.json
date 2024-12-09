@@ -1,0 +1,21 @@
+{
+  "tree": {
+    "id": "e5vklweti",
+    "title": "First Task",
+    "description": "Root node description",
+    "isLocked": false,
+    "children": [
+      {
+        "id": "x0lwug9gs",
+        "title": "New Node",
+        "description": "Add a description",
+        "isLocked": false,
+        "children": null,
+        "parentId": "e5vklweti"
+      }
+    ],
+    "parentId": null
+  },
+  "timestamp": 1733708145463,
+  "version": "1.0.0"
+}
