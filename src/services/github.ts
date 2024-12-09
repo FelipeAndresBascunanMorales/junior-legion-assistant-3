@@ -15,6 +15,17 @@ interface TreeData {
   version: string;
 }
 
+interface ContentData {
+  type: 'repository_contents',
+  base_path: 'src/',
+  files: [{
+    path: string,
+    content: string
+  }],
+  task_solved: "task identifier"
+}
+
+ // this code is working but just push the tree to github
 export async function pushTreeToGithub(tree: TreeNode): Promise<void> {
   try {
     const treeData: TreeData = {
@@ -79,54 +90,154 @@ export async function pushTreeToGithub(tree: TreeNode): Promise<void> {
   }
 }
 
+// this code push the changes on files according to the task solved
+export async function commitAssistantResponse(assistantResponse, branch = "junior-partner-contributor") {
+  const { files, task_solved } = assistantResponse;
+  
+  try {
+    // 1. Get the latest commit SHA
+    const { data: ref } = await octokit.rest.git.getRef({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      ref: `heads/${branch}`,
+    });
+    const latestCommitSha = ref.object.sha;
 
+    // 2. Create a new branch for these changes
+    const newBranch = `feature/${task_solved}`;
+    await octokit.rest.git.createRef({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      ref: `refs/heads/${newBranch}`,
+      sha: latestCommitSha,
+    });
+
+    console.log("in commitAssistantResponse - newBranch: ", newBranch);
+    // 3. Create blobs for each file
+    const fileBlobs = await Promise.all(
+      files.map(async file => {
+        const { data: blob } = await octokit.rest.git.createBlob({
+          owner: REPO_OWNER,
+          repo: REPO_NAME,
+          content: file.content,
+          encoding: "utf-8",
+        });
+
+        return {
+          path: file.path,
+          sha: blob.sha,
+          mode: "100644", // regular file
+          type: "blob",
+        };
+      })
+    );
+
+    // 4. Create a tree
+    const { data: tree } = await octokit.rest.git.createTree({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      base_tree: latestCommitSha,
+      tree: fileBlobs,
+    });
+
+    // 5. Create a commit
+    const { data: commit } = await octokit.rest.git.createCommit({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      message: `feat: ${task_solved}`,
+      tree: tree.sha,
+      parents: [latestCommitSha],
+    });
+
+    // 6. Update the branch reference
+    await octokit.rest.git.updateRef({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      ref: `heads/${newBranch}`,
+      sha: commit.sha,
+    });
+
+    // 7. Create a pull request
+    const { data: pr } = await octokit.rest.pulls.create({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      title: `Feature: ${task_solved}`,
+      head: newBranch,
+      base: branch,
+      body: `Automated changes by assistant for task: ${task_solved}`,
+    });
+
+    return {
+      success: true,
+      pullRequest: pr.html_url,
+      branch: newBranch,
+    };
+
+  } catch (error) {
+    console.error('Error during commit process:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
 
 export async function getRepoContents() {
   // Get the tree recursively
-  const { data: { tree } } = await octokit.git.getTree({
+  const { data: { tree } } = await octokit.rest.git.getTree({
     owner: "FelipeAndresBascunanMorales",
     repo: "junior-legion-assistant-3",
     tree_sha: "junior-partner-contributor", // or your branch
     recursive: "1"
   });
 
-  // Filter for src/ files
-  const srcFiles = tree.filter(item => 
-    item.type === "blob" && 
-    item.path.startsWith("src/")
-  );
+  // Get file paths and their streams
+  const fileStreams = await Promise.all(
+    tree
+      .filter(item => item.type === "blob" && item.path?.startsWith("src/") && item.path?.endsWith('.tsx'))
+      .map(async file => {
+        const { data } = await octokit.rest.git.getBlob({
+          owner: "FelipeAndresBascunanMorales",
+          repo: "junior-legion-assistant-3",
+          file_sha: file.sha ?? ''
+        });
 
-  // Get content for each file
-  const contents = await Promise.all(
-    srcFiles.map(async file => {
-      const { data } = await octokit.git.getBlob({
-        owner: "username",
-        repo: "repo",
-        file_sha: file.sha
-      });
+        const base64ToUint8Array = (base64: string) => {
+          const binaryString = atob(base64); // Decode base64 to a binary string
+          const length = binaryString.length;
+          const bytes = new Uint8Array(length);
+      
+          for (let i = 0; i < length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+          }
+      
+          return bytes;
+        };
+        const decodedContent = base64ToUint8Array(data.content);
+        // Create a Readable Stream that OpenAI can consume
+        return new File(
+          [decodedContent],
+          file.path?.replace('tsx', 'ts') ?? '',
+          { type: 'ts' }
+        );
+      })
+    );
 
-      return {
-        path: file.path,
-        content: Buffer.from(data.content, 'base64').toString()
-      };
-    })
-  );
-
-  return contents;
+  return fileStreams;
 }
 
 // With rate limiting and batching
 export async function handleLargeRepo() {
-  const { data: { tree } } = await octokit.git.getTree({
-    owner: "username",
-    repo: "repo",
-    tree_sha: "main",
+  const { data: { tree } } = await octokit.rest.git.getTree({
+    owner: "FelipeAndresBascunanMorales",
+    repo: "junior-legion-assistant-3",
+    tree_sha: "junior-partner-contributor",
     recursive: "1"
   });
 
   const srcFiles = tree.filter(item => 
     item.type === "blob" && 
-    item.path.startsWith("src/")
+    item.path?.startsWith("src/")
   );
 
   // Process in batches
@@ -137,10 +248,10 @@ export async function handleLargeRepo() {
     const batch = srcFiles.slice(i, i + batchSize);
     const batchResults = await Promise.all(
       batch.map(async file => {
-        const { data } = await octokit.git.getBlob({
-          owner: "username",
-          repo: "repo",
-          file_sha: file.sha
+        const { data } = await octokit.rest.git.getBlob({
+          owner: "FelipeAndresBascunanMorales",
+          repo: "junior-legion-assistant-3",
+          file_sha: file.sha ?? ''
         });
 
         return {
