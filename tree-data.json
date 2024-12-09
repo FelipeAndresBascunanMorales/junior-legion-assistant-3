@@ -1,21 +1,21 @@
 {
   "tree": {
-    "id": "ghds2vnwb",
+    "id": "lcekg0s7r",
     "title": "First Task",
     "description": "Root node description",
     "isLocked": false,
     "children": [
       {
-        "id": "uurz7yxxs",
+        "id": "xi1onx9x9",
         "title": "New Node",
         "description": "Add a description",
         "isLocked": false,
         "children": null,
-        "parentId": "ghds2vnwb"
+        "parentId": "lcekg0s7r"
       }
     ],
     "parentId": null
   },
-  "timestamp": 1733711609753,
+  "timestamp": 1733712170151,
   "version": "1.0.0"
 }
