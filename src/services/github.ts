@@ -5,8 +5,8 @@ const octokit = new Octokit({
   auth: import.meta.env.VITE_GITHUB_TOKEN
 });
 
-const REPO_OWNER = 'your-username';
-const REPO_NAME = 'your-repo';
+const REPO_OWNER = 'FelipeAndresBascunanMorales';
+const REPO_NAME = 'junior-legion-assistant-3';
 const BRANCH = 'main';
 
 interface TreeData {
@@ -40,7 +40,7 @@ export async function pushTreeToGithub(tree: TreeNode): Promise<void> {
     const { data: blob } = await octokit.rest.git.createBlob({
       owner: REPO_OWNER,
       repo: REPO_NAME,
-      content: Buffer.from(JSON.stringify(treeData, null, 2)).toString('base64'),
+      content: btoa(JSON.stringify(treeData, null, 2)),
       encoding: 'base64'
     });
 
@@ -77,4 +77,85 @@ export async function pushTreeToGithub(tree: TreeNode): Promise<void> {
     console.error('Failed to push to GitHub:', error);
     throw new Error('Failed to push to GitHub');
   }
+}
+
+
+
+export async function getRepoContents() {
+  // Get the tree recursively
+  const { data: { tree } } = await octokit.git.getTree({
+    owner: "FelipeAndresBascunanMorales",
+    repo: "junior-legion-assistant-3",
+    tree_sha: "junior-partner-contributor", // or your branch
+    recursive: "1"
+  });
+
+  // Filter for src/ files
+  const srcFiles = tree.filter(item => 
+    item.type === "blob" && 
+    item.path.startsWith("src/")
+  );
+
+  // Get content for each file
+  const contents = await Promise.all(
+    srcFiles.map(async file => {
+      const { data } = await octokit.git.getBlob({
+        owner: "username",
+        repo: "repo",
+        file_sha: file.sha
+      });
+
+      return {
+        path: file.path,
+        content: Buffer.from(data.content, 'base64').toString()
+      };
+    })
+  );
+
+  return contents;
+}
+
+// With rate limiting and batching
+export async function handleLargeRepo() {
+  const { data: { tree } } = await octokit.git.getTree({
+    owner: "username",
+    repo: "repo",
+    tree_sha: "main",
+    recursive: "1"
+  });
+
+  const srcFiles = tree.filter(item => 
+    item.type === "blob" && 
+    item.path.startsWith("src/")
+  );
+
+  // Process in batches
+  const batchSize = 10;
+  const results = [];
+
+  for (let i = 0; i < srcFiles.length; i += batchSize) {
+    const batch = srcFiles.slice(i, i + batchSize);
+    const batchResults = await Promise.all(
+      batch.map(async file => {
+        const { data } = await octokit.git.getBlob({
+          owner: "username",
+          repo: "repo",
+          file_sha: file.sha
+        });
+
+        return {
+          path: file.path,
+          content: Buffer.from(data.content, 'base64').toString()
+        };
+      })
+    );
+    results.push(...batchResults);
+    
+    // Optional: Add delay between batches
+    if (i + batchSize < srcFiles.length) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+
+  return results;
 }

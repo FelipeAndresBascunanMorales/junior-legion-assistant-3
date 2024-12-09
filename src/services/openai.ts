@@ -25,7 +25,6 @@ export async function generateTreeContent(
   // wake up the assistant
   const assistant = await openai.beta.assistants.retrieve("asst_uoqTiJO5E9UAEY2f3ZJNIi8L");
 
-  console.log("assistant: ", assistant);
   // create a thread
   const thread = await openai.beta.threads.create();
 
@@ -34,26 +33,16 @@ export async function generateTreeContent(
     content: prompt
   });
 
-  console.log("message: ", message);
-  
-  console.log("thread: ", thread);
   // create a run
   const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
     assistant_id: assistant.id,
   });
 
-  console.log("run: ", run);
-
   if (run.status === 'completed') {
-    const responseData = await openai.beta.threads.messages.list(run.thread_id);
-    console.log("reverse type: ", responseData.data.reverse()[0].content[0].type);
-    console.log("reverse text value: ", responseData.data.reverse()[0].content[0].text.value);
-
-    for (const message of responseData.data.reverse()) {
-      console.log(`${message.role} > ${message.content[0].text.value}`);
-    }
-
-    const newTree = JSON.parse(responseData.data.reverse()[0].content[0].text.value);
+    const responseData = await openai.beta.threads.messages.list(run.thread_id);  
+    const newTree = JSON.parse(responseData.data[0].content[0].text.value);
+    console.log("responseData: ", responseData);
+    console.log("newTree (parsed): ", newTree);
     return newTree;
   } else {
     console.log(run.status);
