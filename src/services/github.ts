@@ -194,7 +194,7 @@ export async function getRepoContents() {
   // Get file paths and their streams
   const fileStreams = await Promise.all(
     tree
-      .filter(item => item.type === "blob" && item.path?.startsWith("src/") && item.path?.endsWith('.tsx'))
+      .filter(item => item.type === "blob" && item.path?.startsWith("src/") && (item.path?.endsWith('.tsx') || item.path?.endsWith('.ts')))
       .map(async file => {
         const { data } = await octokit.rest.git.getBlob({
           owner: "FelipeAndresBascunanMorales",
@@ -217,7 +217,7 @@ export async function getRepoContents() {
         // Create a Readable Stream that OpenAI can consume
         return new File(
           [decodedContent],
-          file.path?.replace('tsx', 'ts') ?? '',
+          file.path?.replace('tsx', 'tsx.ts') ?? '',
           { type: 'ts' }
         );
       })
