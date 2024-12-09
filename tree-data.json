@@ -1,30 +1,21 @@
 {
   "tree": {
-    "id": "2mlgcwuvz",
+    "id": "u10kmy2ac",
     "title": "First Task",
     "description": "Root node description",
     "isLocked": false,
     "children": [
       {
-        "id": "luipbya63",
+        "id": "s5lazv7yi",
         "title": "New Node",
         "description": "Add a description",
         "isLocked": false,
-        "children": [
-          {
-            "id": "181wx0895",
-            "title": "New Node",
-            "description": "Add a description",
-            "isLocked": false,
-            "children": null,
-            "parentId": "luipbya63"
-          }
-        ],
-        "parentId": "2mlgcwuvz"
+        "children": null,
+        "parentId": "u10kmy2ac"
       }
     ],
     "parentId": null
   },
-  "timestamp": 1733713091812,
+  "timestamp": 1733717006193,
   "version": "1.0.0"
 }
