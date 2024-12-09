@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Lock, Unlock, Plus, X, Search, Layers } from 'lucide-react';
+import { Lock, Unlock, Plus, X, Search, Layers, Hammer } from 'lucide-react';
 import { TreeNode as TreeNodeType } from '../types/tree';
+import clsx from 'clsx';
 
 interface TreeNodeProps {
   node: TreeNodeType;
@@ -50,14 +51,19 @@ export function TreeNode({
 
   return (
     <div className="relative group">
-      <div className={`
-        p-4 bg-white border rounded-lg shadow-sm w-[250px]
-        ${node.isLocked ? 'border-gray-300' : 'border-blue-200 hover:border-blue-300'}
-        transition-colors
-      `}>
+      <div
+        className={clsx(
+          "p-4 bg-white border rounded-lg shadow-sm w-[250px]",
+          node.isLocked
+            ? "border-gray-400"
+            : "border-blue-200 hover:border-blue-300",
+          node.solved && "bg-teal-100",
+          "transition-colors"
+        )}
+      >
         <div onDoubleClick={handleDoubleClick}>
           {isEditing ? (
-            <div className="space-y-2">
+            <div className="space-y-2 bg-">
               <input
                 type="text"
                 value={editedTitle}
@@ -105,12 +111,21 @@ export function TreeNode({
           )}
           <button
             onClick={() => onToggleLock(node.id)}
-            className="p-1 text-gray-500 hover:text-gray-700 rounded"
+            className={clsx(
+              "p-1 text-gray-500 hover:text-blue-500 rounded",
+              node.isLocked ? "text-gray-600" : "text-gray-500"
+            )}
             title={node.isLocked ? "Unlock" : "Lock"}
           >
             {node.isLocked ? <Lock size={16} /> : <Unlock size={16} />}
           </button>
         </div>
+
+        {node.isReachableByLowLevelDevelopers && (
+          <div className="absolute -top-2 left-2 flex gap-1">
+            <Hammer className="text-fuchsia-600" size={24} strokeWidth={2} />
+          </div>
+        )}
 
         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-10">
           <button

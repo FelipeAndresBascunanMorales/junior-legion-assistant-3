@@ -14,14 +14,13 @@ export function useTreeState() {
     parentId: null
   });
 
-  // const { generateContent, saveToGithub } = useAIAssistant();
-  const { generateContent } = useAIAssistant();
+  const { generateContent, saveToGithub } = useAIAssistant();
 
   const generateWithAI = useCallback(async (parentId: string, aiPrompt?: string) => {
     const parentNode = findNode(tree, parentId);
     if (!parentNode) return;
     return await generateContent(parentNode, null, aiPrompt || '');
-  }, [tree]);
+  }, [generateContent, tree]);
 
   const addChild = useCallback(async (parentId: string) => {
     try {
@@ -52,12 +51,13 @@ export function useTreeState() {
         }
 
         const updatedTree = updateNode(current);
+        saveToGithub(updatedTree).catch(console.error);
         return updatedTree;
       });
     } catch (error) {
       console.error('Failed to add child:', error);
     }
-  }, [tree]);
+  }, [saveToGithub, tree]);
 
   const updateNodeContent = useCallback((nodeId: string, title: string, description: string) => {
     setTree((current) => {
