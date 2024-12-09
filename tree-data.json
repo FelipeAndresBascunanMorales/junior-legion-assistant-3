@@ -1,21 +1,21 @@
 {
   "tree": {
-    "id": "6m4ma3gvs",
+    "id": "6lsry9lp6",
     "title": "First Task",
     "description": "Root node description",
     "isLocked": false,
     "children": [
       {
-        "id": "z08rroku2",
+        "id": "sgx5ku6rf",
         "title": "New Node",
         "description": "Add a description",
         "isLocked": false,
         "children": null,
-        "parentId": "6m4ma3gvs"
+        "parentId": "6lsry9lp6"
       }
     ],
     "parentId": null
   },
-  "timestamp": 1733709482581,
+  "timestamp": 1733711441362,
   "version": "1.0.0"
 }
