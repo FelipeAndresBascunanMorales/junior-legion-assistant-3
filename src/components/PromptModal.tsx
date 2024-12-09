@@ -22,7 +22,7 @@ export function PromptModal({ setTree }: { setTree: (tree: TreeNode) => void }) 
     }
   };
 
-  return <div className="flex flex-col gap-4 p-4">
+  return <div className="flex flex-col gap-4 p-4 h-64">
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
       <label htmlFor="prompt" className="text-lg font-bold">What do you want to develop?</label>
       <input type="text" id="prompt" className="p-2 border border-gray-300 rounded-md" onChange={(e) => setPrompt(e.target.value)} />

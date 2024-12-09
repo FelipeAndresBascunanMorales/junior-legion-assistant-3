@@ -51,13 +51,13 @@ export function useTreeState() {
         }
 
         const updatedTree = updateNode(current);
-        saveToGithub(updatedTree).catch(console.error);
+        // saveToGithub(updatedTree).catch(console.error);
         return updatedTree;
       });
     } catch (error) {
       console.error('Failed to add child:', error);
     }
-  }, [saveToGithub, tree]);
+  }, [tree]);
 
   const updateNodeContent = useCallback((nodeId: string, title: string, description: string) => {
     setTree((current) => {

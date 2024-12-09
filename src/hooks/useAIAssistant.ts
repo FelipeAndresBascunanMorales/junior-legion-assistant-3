@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { TreeNode } from '../types/tree';
-import { pushTreeToGithub } from '../services/github';
-import { generateNodeContent, generateTreeContent } from '../services/openai';
+import { pushTreeToGithub, getRepoContents, commitAssistantResponse } from '../services/github';
+import { generateNodeContent, generateTreeContent, solveATaskContent } from '../services/openai';
 
 
 export function useAIAssistant() {
@@ -22,18 +22,33 @@ export function useAIAssistant() {
     return await generateTreeContent(null, null, prompt);
   }, []);
 
-  const saveToGithub = useCallback(async (tree: TreeNode) => {
+  const saveToGithub = useCallback(async (content: any) => {
     try {
-      await pushTreeToGithub(tree);
+      await pushTreeToGithub(content);
     } catch (error) {
       console.error('Failed to save to GitHub:', error);
       throw error;
     }
   }, []);
 
+
+  const solveATaskWithAI = useCallback(async (
+    node: TreeNode | null,
+    parentNode: TreeNode | null,
+  ) => {
+    const repo = await getRepoContents();
+    const solutionToCommit = await solveATaskContent(repo, node, parentNode);
+    console.log("in useAIAssistant - solutionToCommit: ", solutionToCommit);
+    const assistantResponse = await commitAssistantResponse(solutionToCommit);
+    console.log("in useAIAssistant - assistantResponse: ", assistantResponse);
+    return assistantResponse;
+  }, []);
+
+
   return {
     generateContent,
     generateTree,
-    saveToGithub
+    saveToGithub,
+    solveATaskWithAI
   };
 }
