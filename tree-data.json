@@ -10,12 +10,21 @@
         "title": "New Node",
         "description": "Add a description",
         "isLocked": false,
-        "children": null,
+        "children": [
+          {
+            "id": "181wx0895",
+            "title": "New Node",
+            "description": "Add a description",
+            "isLocked": false,
+            "children": null,
+            "parentId": "luipbya63"
+          }
+        ],
         "parentId": "2mlgcwuvz"
       }
     ],
     "parentId": null
   },
-  "timestamp": 1733712225920,
+  "timestamp": 1733713091812,
   "version": "1.0.0"
 }
