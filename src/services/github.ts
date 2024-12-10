@@ -124,7 +124,7 @@ export async function commitAssistantResponse(assistantResponse, branch = "junio
         });
 
         return {
-          path: file.path,
+          path: file.path.replace('tsx.ts', 'tsx'),
           sha: blob.sha,
           mode: "100644", // regular file
           type: "blob",
