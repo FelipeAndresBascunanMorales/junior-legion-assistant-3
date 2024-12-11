@@ -1,8 +1,16 @@
 import { useCallback } from 'react';
-import { TreeNode } from '../types/tree';
+import OpenAI from 'openai';
+import { parseAssistantResponseToTreeNode, TreeNode } from '../types/tree';
 import { pushTreeToGithub, getRepoContents, commitAssistantResponse } from '../services/github';
-import { generateNodeContent, solveATaskContent, generateInitialTree as CallGenerateInitialTree, addAttributesToTree as callAddAttributesToTree } from '../services/openai';
+import { generateNodeContent, solveATaskContent } from '../services/openai';
+import { callEnhancerAssistant } from '../services/openai/theEnhancerAssistant';
+import { callAddAttributesToTree, callGenerateInitialTree } from '../services/openai/theProductManagerAssistant';
 
+
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true
+});
 
 export function useAIAssistant() {
   const generateContent = useCallback(async (
@@ -19,14 +27,16 @@ export function useAIAssistant() {
   }, []);
 
   const generateInitialTree = useCallback(async (prompt: string) => {
-    return await CallGenerateInitialTree(prompt);
+  // 1.- Enhance the prompt
+  const enhancedPrompt = await callEnhancerAssistant(prompt, openai);
+  // 2.- Generate the list of tasks
+  return parseAssistantResponseToTreeNode(await callGenerateInitialTree(enhancedPrompt, openai));
+
   }, []);
 
-  
   const addAttributesToTree = useCallback(async (tree: TreeNode) => {
-    //take uncompleted task from the tree
-    const completedTasks = callAddAttributesToTree(tree);
-    return completedTasks;
+    const treeWithAttributes = parseAssistantResponseToTreeNode(await callAddAttributesToTree(tree, openai));
+    return treeWithAttributes;
   }, []);
   
   const addAttributesToTreeStandBy = useCallback(async (tree: TreeNode) => {
