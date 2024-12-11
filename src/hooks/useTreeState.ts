@@ -7,14 +7,21 @@ import { findNode, lockParentNodes } from '../utils/tree-utils';
 export function useTreeState() {
   const [tree, setTree] = useState<TreeNode>({
     id: generateId(),
-    title: 'First Task',
-    description: 'Root node description',
+    title: 'Root',
+    description: 'Add a description',
     isLocked: false,
     children: null,
     parentId: null
-  });
+  })
 
-  const { generateContent, saveToGithub } = useAIAssistant();
+  const setTreeWithDebug = useCallback((newTree: TreeNode) => {
+    console.log("Setting new tree:", newTree);
+    setTree(newTree);
+  }, []);
+
+
+  // const { generateContent, saveToGithub } = useAIAssistant();
+  const { generateContent } = useAIAssistant();
 
   const generateWithAI = useCallback(async (parentId: string, aiPrompt?: string) => {
     const parentNode = findNode(tree, parentId);
@@ -133,5 +140,5 @@ export function useTreeState() {
     }
   }, [tree]);
 
-  return { tree, setTree, addChild, generateWithAI, updateNodeContent, toggleLock, deleteNode, zoomIn };
+  return { tree, setTree: setTreeWithDebug, addChild, generateWithAI, updateNodeContent, toggleLock, deleteNode, zoomIn };
 }

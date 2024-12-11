@@ -1,19 +1,58 @@
 import { Sparkles } from "lucide-react";
-import { TreeNode } from "../types/tree";
 import { useAIAssistant } from "../hooks/useAIAssistant";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { TreeNode } from "../types/tree";
+import { generateId } from "../utils/helpers";
 
-export function PromptModal({ setTree }: { setTree: (tree: TreeNode) => void }) {
-  const { generateTree } = useAIAssistant();
+// function convertToTreeNode(node: any): TreeNode {
+//   return {
+//     id: node.id || String(Math.random()),
+//     title: node.title || '',
+//     description: node.description || '',
+//     children: node.children?.map(convertToTreeNode) || null,
+//   };
+// }
+
+export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => void, tree: TreeNode }) {
+
+  const { generateInitialTree, addAttributesToTree } = useAIAssistant();
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const [fillingTree, setFillingTree] = useState(false);
+
+  console.log("tree from modal: ", tree);
+
+
+  useEffect(() => {
+    if (fillingTree) {
+      console.log("tree in useEffect fillingTree: ", tree);
+      addAttributesToTree(tree).then(completedTree => {
+        console.log("completedTree: ", completedTree);
+        setTree(completedTree);
+        setFillingTree(false);
+      });
+    }
+
+    // recursively reach the 
+
+  }, [fillingTree]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    try {
-      const newTree = await generateTree(prompt);
-      setTree(newTree);
+
+    try {      
+      const newTree = await generateInitialTree(prompt);
+      setTree(
+        newTree
+      )
+      console.log("tree from modal after setting: ", tree);
+      setFillingTree(true);
+      // setTree(prev => ({...prev, children: newTree.children}));
+
+      // const newTreeWithAttributes = await addAttributesToTree(tree);
+      // setTree(newTreeWithAttributes);
     } catch (error) {
       console.error('Error generating tree:', error);
       // You might want to add error handling UI here
@@ -33,6 +72,7 @@ export function PromptModal({ setTree }: { setTree: (tree: TreeNode) => void }) 
       >
         <Sparkles className="w-4 h-4" />
         <p>{isLoading ? 'Generating...' : 'Generate'}</p>
+        <p>{fillingTree ? 'Filling tree...' : ''}</p>
       </button>
     </form>
   </div>;
