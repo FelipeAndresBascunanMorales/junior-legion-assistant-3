@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { TreeNode } from '../types/tree';
 import { pushTreeToGithub, getRepoContents, commitAssistantResponse } from '../services/github';
-import { generateNodeContent, generateTreeContent, solveATaskContent } from '../services/openai';
+import { generateNodeContent, solveATaskContent, generateInitialTree as CallGenerateInitialTree, addAttributesToTree as callAddAttributesToTree } from '../services/openai';
 
 
 export function useAIAssistant() {
@@ -18,9 +18,40 @@ export function useAIAssistant() {
     }
   }, []);
 
-  const generateTree = useCallback(async (prompt: string) => {
-    return await generateTreeContent(null, null, prompt);
+  const generateInitialTree = useCallback(async (prompt: string) => {
+    return await CallGenerateInitialTree(prompt);
   }, []);
+
+  
+  const addAttributesToTree = useCallback(async (tree: TreeNode) => {
+    //take uncompleted task from the tree
+    const completedTasks = callAddAttributesToTree(tree);
+    return completedTasks;
+  }, []);
+  
+  const addAttributesToTreeStandBy = useCallback(async (tree: TreeNode) => {
+    //take uncompleted task from the tree
+    const uncompletedTask = tree.children?.find(child => !child.description);
+    console.log("uncompletedTask from addAttributesToTree: ", uncompletedTask);
+    if (uncompletedTask) {
+      const completedTasks = callAddAttributesToTree(uncompletedTask);
+      console.log("completedTasks from addAttributesToTree: ", completedTasks);
+      const completedTree = {
+        ...tree,
+        children: tree.children?.map(child => {
+          if (uncompletedTasks.map(task => task.id).includes(child.id)) {
+            return completedTasks.then(tasks => tasks.find((task: TreeNode) => task.id === child.id)) as TreeNode;
+          }
+          return child;
+        })
+      };
+
+      console.log("completedTree: ", completedTree);
+      return completedTree;
+    }
+    return tree;
+  }, []);
+
 
   const saveToGithub = useCallback(async (content: any) => {
     try {
@@ -47,8 +78,9 @@ export function useAIAssistant() {
 
   return {
     generateContent,
-    generateTree,
+    generateInitialTree,
     saveToGithub,
-    solveATaskWithAI
+    solveATaskWithAI,
+    addAttributesToTree
   };
 }

@@ -30,16 +30,12 @@ export async function callEnhancerAssistant(
     "type": "text"
   },
   temperature: 1,
-  max_tokens: 2048,
+  max_tokens: 4096,
   top_p: 1,
   frequency_penalty: 0,
   presence_penalty: 0
 });
-console.log("remember to validate this: ", response);
-  const content = response.choices[0].message.content;
-  if (!content) throw new Error('No response content from OpenAI');
-  
-  const parsedValue = JSON.parse(content);
-  if (!parsedValue) throw new Error('Failed to parse OpenAI response');
-  return parsedValue.text.value;
+const content = response.choices[0].message.content;
+if (!content) throw new Error('No response content from OpenAI');
+return content;
 }

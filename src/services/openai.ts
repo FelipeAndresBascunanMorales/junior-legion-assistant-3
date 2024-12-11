@@ -1,11 +1,12 @@
 import OpenAI from 'openai';
-import { TreeNode } from '../types/tree';
+import { TreeNode, parseAssistantResponseToTreeNode } from '../types/tree';
 import { z } from 'zod';
 import { callSolveATaskContent } from './openai/theJuniorDevAssistant';
-import { callGenerateTreeContent } from './openai/theProductManagerAssistant';
-import { TaskNodeSchema } from '../types/schemas';
-import { callListOfTaskGenerator } from './openai/theListOfTaskGenerator';
+import { callAddAttributesToTree, callGenerateInitialTree } from './openai/theProductManagerAssistant';
 import { callEnhancerAssistant } from './openai/theEnhancerAssistant';
+
+import { TaskNodeSchema, TaskTreeSchema } from '../types/schemas';
+// import { callListOfTaskGenerator } from './openai/theListOfTaskGenerator';
 
 
 const openai = new OpenAI({
@@ -22,33 +23,25 @@ const nodeUpdateSchema = z.object({
 
 type NodeUpdate = z.infer<typeof nodeUpdateSchema>;
 
-export async function enhancePrompt(prompt: string) {
-  const result = await callEnhancerAssistant(prompt, openai);
-  return result;
-}
-
-export async function generateListOfTasks(prompt: string) {
-  const result = await callListOfTaskGenerator(prompt, openai);
-  return result;
-}
-
 export async function solveATaskContent(contents: any, node: TreeNode | null, parentNode: TreeNode | null): Promise<TreeNode> {
   const result = await callSolveATaskContent(contents, node, parentNode, openai);
   return result;
 }
 
-export async function generateTreeContent(currentNode: TreeNode | null, tree: TreeNode | null, prompt: string): Promise<TreeNode> {
-
-  const result = await callGenerateTreeContent(currentNode, tree, prompt, openai);
-  return result;
-}
-
 export async function generateInitialTree(prompt: string): Promise<TreeNode> {
-  const enhancedPrompt = await enhancePrompt(prompt);
-  const listOfTasks = await generateListOfTasks(enhancedPrompt);
-  const tree = await generateTreeContent(null, null, enhancedPrompt);
-  return tree;
+  // 1.- Enhance the prompt
+  const enhancedPrompt = await callEnhancerAssistant(prompt, openai);
+  // 2.- Generate the list of tasks
+  return parseAssistantResponseToTreeNode(await callGenerateInitialTree(enhancedPrompt, openai));
+  
 }
+
+export async function addAttributesToTree(uncompletedTasks: TreeNode): Promise<TreeNode> {
+  const treeWithAttributes = parseAssistantResponseToTreeNode(await callAddAttributesToTree(uncompletedTasks, openai));
+  return treeWithAttributes;
+}
+
+// this is a previous version of the generateNodeContent function
 
 export async function generateNodeContent(currentNode: TreeNode, parentNode: TreeNode | null, prompt: string): Promise<NodeUpdate> {
   const systemPrompt = `You are a helpful AI assistant that helps users manage and organize information in a tree structure.
