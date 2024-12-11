@@ -1,11 +1,7 @@
 import OpenAI from 'openai';
-import { TreeNode, parseAssistantResponseToTreeNode } from '../types/tree';
+import { TreeNode } from '../types/tree';
 import { z } from 'zod';
 import { callSolveATaskContent } from './openai/theJuniorDevAssistant';
-import { callAddAttributesToTree, callGenerateInitialTree } from './openai/theProductManagerAssistant';
-import { callEnhancerAssistant } from './openai/theEnhancerAssistant';
-
-import { TaskNodeSchema, TaskTreeSchema } from '../types/schemas';
 // import { callListOfTaskGenerator } from './openai/theListOfTaskGenerator';
 
 
@@ -27,20 +23,6 @@ export async function solveATaskContent(contents: any, node: TreeNode | null, pa
   const result = await callSolveATaskContent(contents, node, parentNode, openai);
   return result;
 }
-
-export async function generateInitialTree(prompt: string): Promise<TreeNode> {
-  // 1.- Enhance the prompt
-  const enhancedPrompt = await callEnhancerAssistant(prompt, openai);
-  // 2.- Generate the list of tasks
-  return parseAssistantResponseToTreeNode(await callGenerateInitialTree(enhancedPrompt, openai));
-  
-}
-
-export async function addAttributesToTree(uncompletedTasks: TreeNode): Promise<TreeNode> {
-  const treeWithAttributes = parseAssistantResponseToTreeNode(await callAddAttributesToTree(uncompletedTasks, openai));
-  return treeWithAttributes;
-}
-
 // this is a previous version of the generateNodeContent function
 
 export async function generateNodeContent(currentNode: TreeNode, parentNode: TreeNode | null, prompt: string): Promise<NodeUpdate> {

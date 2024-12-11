@@ -2,7 +2,6 @@ import { Sparkles } from "lucide-react";
 import { useAIAssistant } from "../hooks/useAIAssistant";
 import { useEffect, useState } from "react";
 import { TreeNode } from "../types/tree";
-import { generateId } from "../utils/helpers";
 
 // function convertToTreeNode(node: any): TreeNode {
 //   return {
@@ -27,16 +26,43 @@ export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => v
   useEffect(() => {
     if (fillingTree) {
       console.log("tree in useEffect fillingTree: ", tree);
+
+      const timeout = setTimeout(() => {
+        console.log("tree in timeout: ", tree);
+      
       addAttributesToTree(tree).then(completedTree => {
         console.log("completedTree: ", completedTree);
         setTree(completedTree);
+
         setFillingTree(false);
       });
+      }, 1000);
+
+      return () => clearTimeout(timeout);
     }
-
-    // recursively reach the 
-
   }, [fillingTree]);
+
+  
+  useEffect(() => {
+    if (fillingTree) {
+      console.log("tree in useEffect fillingTree: ", tree);
+
+      const timeout = setTimeout(() => {
+        console.log("tree in timeout: ", tree);
+      
+      addAttributesToTree(tree).then(completedTree => {
+        console.log("completedTree: ", completedTree);
+        setTree(completedTree);
+
+        setFillingTree(false);
+      });
+      }, 1000);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [fillingTree]);
+
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
