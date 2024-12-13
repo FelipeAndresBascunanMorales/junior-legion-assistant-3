@@ -80,7 +80,7 @@ export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => v
       <button 
         type="submit" 
         disabled={!prompt.trim() || isLoading}
-        className="flex justify-center items-center text-center gap-2 bg-emerald-500 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex justify-center items-center text-center gap-2 bg-emerald-700 text-white p-2 rounded-md disabled:opacity-80 disabled:cursor-not-allowed"
       >
         <Sparkles className="w-4 h-4" />
         <p>{isLoading ? 'Generating...' : 'Generate'}</p>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Unlock, Plus, X, Search, Layers, Hammer, RefreshCcw, Check } from 'lucide-react';
+import { Lock, Unlock, Plus, X, Search, Layers, Hammer, RefreshCcw, Check, WandSparkles } from 'lucide-react';
 import { TreeNode as TreeNodeType } from '../types/tree';
 import clsx from 'clsx';
 
@@ -89,7 +89,11 @@ export function TreeNode({
                 className="w-full px-2 py-1 border rounded text-sm resize-none"
                 rows={2}
               />
-            {node?.readyForDevelopment && (<div className='text-sm text-gray-600'>{node.indicationsForDevelopment?.instructions}</div>)}
+              {node?.readyForDevelopment && (
+                <div className="text-sm text-gray-600">
+                  {node.indicationsForDevelopment?.instructions}
+                </div>
+              )}
             </div>
           ) : (
             <div className="min-h-[80px] py-4">
@@ -97,30 +101,60 @@ export function TreeNode({
                 {node.title}
               </h3>
               <p className="text-sm text-gray-600">{node.description}</p>
-              <div className='flex gap-2'>
-                {/* the prepare button */}  
-                <div className="absolute bottom-0 left-0 m-1 group-hover:inline-block hidden" hidden={node.readyForDevelopment} onClick={() => onPrepare(node.id)}>
-                  <button className="px-1 bg-white border rounded hover:bg-gray-50">prepare</button>
+              <div className="flex gap-2">
+                {/* the prepare button */}
+                <div
+                  className="absolute bottom-0 left-0 m-1 group-hover:inline-block hidden"
+                  hidden={node.readyForDevelopment}
+                  onClick={() => onPrepare(node.id)}
+                >
+                  <button className="px-1 bg-white border rounded hover:bg-gray-50 hover:text-blue-500">
+                    prepare
+                  </button>
                 </div>
                 {/* the solve button */}
-                <div className="absolute bottom-0 right-0 m-1 group-hover:inline-block hidden" hidden={node.solved} onClick={() => handleToggleSolved()}>
-                  <button className="px-1 bg-white border rounded hover:bg-gray-50" onClick={() => handleToggleSolved()}>solve</button>
+                <div
+                  className="absolute bottom-0 right-0 m-1 group-hover:inline-block hidden"
+                  hidden={node.solved}
+                  onClick={() => handleToggleSolved()}
+                >
+                  <button
+                    className="px-1 bg-white border rounded hover:bg-gray-50 hover:text-green-500"
+                    onClick={() => handleToggleSolved()}
+                  >
+                    solved
+                  </button>
                 </div>
               </div>
-              {node?.readyForDevelopment && (<div className='text-sm text-gray-600'>{node.indicationsForDevelopment?.instructions}</div>)}
-
+              {node?.readyForDevelopment && (
+                <div className="text-sm text-gray-600">
+                  {node.indicationsForDevelopment?.instructions}
+                </div>
+              )}
             </div>
           )}
         </div>
 
-        
         <div className="absolute top-2 left-2 flex gap-1">
-          <div className={clsx("w-2 h-2 rounded-full", node.solved ? "bg-green-500" : "bg-gray-500")}></div>
+          <div
+            className={clsx(
+              "w-2 h-2 rounded-full",
+              node.solved ? "bg-green-500" : "bg-gray-500"
+            )}
+          ></div>
         </div>
 
         <div className="absolute top-2 right-2 flex gap-1">
           {!node.isLocked && (
             <>
+              <button
+                onClick={() => solveWithAI(node.id)}
+                className="p-1 text-gray-500 hover:text-green-500 rounded"
+                title="WandSparkles"
+                hidden={!node.readyForDevelopment}
+              >
+                <WandSparkles size={16} />
+              </button>
               <button
                 onClick={() => onZoomIn(node.id)}
                 className="p-1 text-gray-500 hover:text-green-500 rounded"
@@ -156,13 +190,15 @@ export function TreeNode({
           </div>
         </div>
 
-        {(node.isReachableByEntryLevelDevelopers && node.levelOfGranularity && node.levelOfGranularity > 6) && (
-          <div className="absolute -top-2 left-6 flex gap-1">
-            <Hammer className="text-emerald-600" size={24} strokeWidth={2} />
-          </div>
-        )}
+        {node.isReachableByEntryLevelDevelopers &&
+          node.levelOfGranularity &&
+          node.levelOfGranularity > 6 && (
+            <div className="absolute -top-2 left-6 flex gap-1">
+              <Hammer className="text-emerald-600" size={24} strokeWidth={2} />
+            </div>
+          )}
 
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-10 p-4" >
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-10 p-4">
           <button
             onClick={() => onAddChild(node.id)}
             // onClick={() => onAddChildrenWithAI(node.id)}
@@ -175,16 +211,30 @@ export function TreeNode({
           {/* button to regenerate: */}
           <button
             onClick={() => setIsAddingPrompt(true)}
-            className="p-1 bg-white border rounded-full shadow-sm hover:bg-gray-50 ml-4 group-hover:inline-block hidden transition-all"
+            className="absolute p-1 bg-white border rounded-full shadow-sm hover:bg-gray-50 ml-2 group-hover:inline-block hidden transition-all"
             title="Regenerate"
           >
             <RefreshCcw size={16} />
           </button>
           {/* input prompt */}
         </div>
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-full z-10" hidden={!isAddingPrompt}>
-          <input type="text" placeholder="Input prompt" className="w-full p-1 border rounded text-sm shadow-sm" value={prompt} onChange={(e) => setPrompt(e.target.value)} />
-          <button onClick={() => (onAddChildrenWithAI(node.id, prompt), setIsAddingPrompt(false))} className="p-1 bg-white border rounded-full shadow-sm hover:bg-gray-50">
+        <div
+          className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-full z-10"
+          hidden={!isAddingPrompt}
+        >
+          <input
+            type="text"
+            placeholder="Input prompt"
+            className="w-full p-1 border rounded text-sm shadow-sm"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+          <button
+            onClick={() => (
+              onAddChildrenWithAI(node.id, prompt), setIsAddingPrompt(false)
+            )}
+            className="p-1 bg-white border rounded-full shadow-sm hover:bg-gray-50"
+          >
             <Check size={16} />
           </button>
         </div>

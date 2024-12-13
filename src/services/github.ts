@@ -17,7 +17,7 @@ interface TreeData {
 
 interface ContentData {
   type: 'repository_contents',
-  base_path: 'src/',
+  base_path: 'app/',
   files: [{
     path: string,
     content: string
@@ -237,7 +237,7 @@ export async function handleLargeRepo() {
 
   const srcFiles = tree.filter(item => 
     item.type === "blob" && 
-    item.path?.startsWith("src/")
+    item.path?.startsWith("app/")
   );
 
   // Process in batches
