@@ -3,6 +3,35 @@ import OpenAI from 'openai';
 
 const SENIOR_DEVELOPER_ASSISTANT_ID = "asst_5krcIPLblqj9rjKFB3rkjnLF";
 
+// submit files
+
+export async function submitFiles(contents: any, openai: OpenAI) {
+  const files = await Promise.all(contents.map(async (content: any) => {
+    const file = await openai.files.create({
+      file: content,
+      purpose: 'assistants'
+    });
+    return file;
+  }))
+
+  const vectorStore = await openai.beta.vectorStores.create({
+    name: "Repository Contents"
+  });
+
+  const fileBatch = await openai.beta.vectorStores.fileBatches.createAndPoll(vectorStore.id, {
+    file_ids: files.map((file: any) => file.id)
+  });
+
+  
+  await openai.beta.assistants.update(SENIOR_DEVELOPER_ASSISTANT_ID, {
+    tool_resources: { file_search: { vector_store_ids: [vectorStore.id] } },
+  });
+
+  return fileBatch;
+}
+
+// solve a specific task
+
 export async function callSolveATaskContent(
     contents: any,
     node: TreeNode | null,

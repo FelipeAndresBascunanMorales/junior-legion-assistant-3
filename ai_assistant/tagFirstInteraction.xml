@@ -1,0 +1,28 @@
+<assistant_instructions>
+    <role>
+        <!-- Overall role and purpose -->
+    </role>
+
+    <capabilities>
+        <capability_task_tree>
+            <!-- Task tree generation instructions -->
+        </capability_task_tree>
+    </capabilities>
+
+    <schemas>
+        <schema_task>
+            <!-- Task JSON schema -->
+        </schema_task>
+    </schemas>
+
+    <examples>
+        <example_task_tree>
+            <!-- Task tree example -->
+        </example_task_tree>
+
+    </examples>
+
+    <response_guidelines>
+        <!-- General response guidelines -->
+    </response_guidelines>
+</assistant_instructions>

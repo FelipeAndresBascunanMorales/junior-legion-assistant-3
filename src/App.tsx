@@ -4,10 +4,9 @@ import { LashTheAI } from './components/LashTheAI';
 import { PromptModal } from './components/PromptModal';
 import { TreeView } from './components/TreeView';
 import { useTreeState } from './hooks/useTreeState';
-import { TreeNode } from './types/tree';
 
 function App() {
-  const { tree, setTree, addChild, updateNodeContent, toggleLock, deleteNode, zoomIn } = useTreeState();
+  const { tree, setTree, addChild, updateNodeContent, toggleLock, deleteNode, zoomIn, addChildrenWithAI, prepare } = useTreeState();
 
   useEffect(() => {
     console.log("Tree state in app:", tree);
@@ -28,6 +27,8 @@ function App() {
             onToggleLock={toggleLock}
             onDelete={deleteNode}
             onZoomIn={zoomIn}
+            onAddChildrenWithAI={addChildrenWithAI}
+            onPrepare={prepare}
           />
         </div>
       </div>

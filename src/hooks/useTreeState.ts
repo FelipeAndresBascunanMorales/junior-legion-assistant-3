@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
 import { TreeNode } from '../types/tree';
 import { generateId } from '../utils/helpers';
-import { useAIAssistant } from './useAIAssistant';
 import { findNode, lockParentNodes } from '../utils/tree-utils';
+import { useAIAssistant } from './useAIAssistant'
+
 
 export function useTreeState() {
   const [tree, setTree] = useState<TreeNode>({
@@ -11,7 +12,15 @@ export function useTreeState() {
     description: 'Add a description',
     isLocked: false,
     children: null,
-    parentId: null
+    parentId: null,
+    order: 0,
+    readyForDevelopment: false,
+    indicationsForDevelopment: {
+      instructions: '',
+      suggestion: '',
+      filesRelated: [],
+      conditionsForSolved: ''
+    }
   })
 
   const setTreeWithDebug = useCallback((newTree: TreeNode) => {
@@ -21,7 +30,7 @@ export function useTreeState() {
 
 
   // const { generateContent, saveToGithub } = useAIAssistant();
-  const { generateContent } = useAIAssistant();
+  const { generateContent, generateTree, addReadyForDevelopmentAttributes } = useAIAssistant();
 
   const generateWithAI = useCallback(async (parentId: string, aiPrompt?: string) => {
     const parentNode = findNode(tree, parentId);
@@ -39,7 +48,13 @@ export function useTreeState() {
         description: 'Add a description',
         isLocked: false,
         children: null,
-        parentId
+        parentId,
+        indicationsForDevelopment: {
+          instructions: '',
+          suggestion: '',
+          filesRelated: [],
+          conditionsForSolved: ''
+        }
       };
 
       setTree((current) => {
@@ -57,14 +72,41 @@ export function useTreeState() {
           };
         }
 
-        const updatedTree = updateNode(current);
-        // saveToGithub(updatedTree).catch(console.error);
-        return updatedTree;
+        return updateNode(current);
       });
     } catch (error) {
       console.error('Failed to add child:', error);
     }
   }, [tree]);
+
+  const addChildrenWithAI = useCallback(async (parentId: string, prompt?: string) => {
+    console.log("Adding children with AI for parentId:", parentId);
+    const parentNode = findNode(tree, parentId);
+    console.log("parentNode:", parentNode);
+    if (!parentNode) return;
+    const updatedSubtask = await generateTree(`separate this task in subtasks please: ${JSON.stringify(parentNode)} ${prompt ? `And consider: ${prompt}` : ''}`, null, tree);
+    
+    console.log("updatedSubtask:", updatedSubtask);
+    setTree((current) => {
+      const updatedTree = (currentTree: TreeNode, parentId: string): TreeNode => {
+        if (currentTree.id === parentId) {
+          return {
+            ...currentTree,
+            children: currentTree.children 
+              ? [...currentTree.children, ...(updatedSubtask.children || [])]
+              : updatedSubtask.children || []
+          }
+        }
+        console.log("currentTree:", currentTree);
+        return {
+          ...currentTree,
+          children: currentTree.children ? currentTree.children.map(child => updatedTree(child, parentId)) : null
+        }
+      }
+      console.log("we will call updatedTree:", updatedTree(current, parentId));
+      return updatedTree(current, parentId);
+    });
+  }, [generateTree, tree]);
 
   const updateNodeContent = useCallback((nodeId: string, title: string, description: string) => {
     setTree((current) => {
@@ -133,6 +175,31 @@ export function useTreeState() {
     });
   }, []);
 
+  const prepare = useCallback(async (nodeId: string) => {
+    const node = findNode(tree, nodeId);
+    if (node) {
+      const newTree = await addReadyForDevelopmentAttributes(node, tree);
+      console.log("prepare node:", node);
+      console.log("prepare newTree:", newTree);
+      setTree(prev => {
+        const updatedTree = (currentNode: TreeNode): TreeNode => {
+          if (currentNode.id === nodeId) {
+            return {
+              ...currentNode,
+              ...newTree
+            };
+          }
+          return {
+            ...currentNode,
+            children: currentNode.children ? currentNode.children?.map(child => updatedTree(child)) : null
+          };
+        };
+        console.log("node Updated:", findNode(prev, nodeId));
+        return updatedTree(prev);
+      });
+    }
+  }, [addReadyForDevelopmentAttributes, tree]);
+
   const zoomIn = useCallback((nodeId: string) => {
     const node = findNode(tree, nodeId);
     if (node) {
@@ -140,5 +207,5 @@ export function useTreeState() {
     }
   }, [tree]);
 
-  return { tree, setTree: setTreeWithDebug, addChild, generateWithAI, updateNodeContent, toggleLock, deleteNode, zoomIn };
+  return { tree, setTree: setTreeWithDebug, addChild, addChildrenWithAI, generateWithAI, updateNodeContent, toggleLock, deleteNode, prepare, zoomIn };
 }

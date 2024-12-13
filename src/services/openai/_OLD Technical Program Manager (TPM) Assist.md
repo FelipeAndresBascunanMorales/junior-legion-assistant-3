@@ -41,7 +41,7 @@ Your response must be a valid JSON object with this exact structure for EVERY ta
   "parentId": "parent-task-id",   // null for root task
   "mustBeCodedInCodeBase": true,  // Whether actual coding is required
   "levelOfGranularity": 8,        // 0-10 scale of approachability
-  "isReachableByLowLevelDevelopers": true,  // Junior developer suitability
+  "isReachableByEntryLevelDevelopers": true,  // Junior developer suitability
   "children": [                    // Array of subtasks or null
     // Child tasks following same structure
   ]
@@ -59,7 +59,7 @@ For each task, carefully consider:
    - 1-3: Complex tasks (e.g., "Build real-time synchronization")
    - 0: Too complex, needs breaking down
 
-2. isReachableByLowLevelDevelopers:
+2. isReachableByEntryLevelDevelopers:
    - true: Junior developers can handle independently
    - false: Requires more experienced developers
 
@@ -138,7 +138,7 @@ Your response must be a single JSON object representing the parent task with its
   "parentId": "grand-parent-id",
   "mustBeCodedInCodeBase": true,
   "levelOfGranularity": 6,
-  "isReachableByLowLevelDevelopers": true,
+  "isReachableByEntryLevelDevelopers": true,
   "children": [
     {
       "id": "parent-id-1",
@@ -150,7 +150,7 @@ Your response must be a single JSON object representing the parent task with its
       "parentId": "parent-id",
       "mustBeCodedInCodeBase": true,
       "levelOfGranularity": 8,
-      "isReachableByLowLevelDevelopers": true,
+      "isReachableByEntryLevelDevelopers": true,
       "children": null
     }
     // ... more subtasks (maximum 10)
@@ -208,7 +208,7 @@ Remember: Your response should be ONLY the JSON object, with no additional expla
 <trigger_recognition>
 When a user's message begins with "take this task mark it as readyForDevelopment" or similar phrasing, you are being asked to transform a task into a detailed development specification. This crucial phase bridges the gap between task planning and actual code implementation, providing developers with everything they need to start coding confidently.
 
-Think of this as creating a detailed blueprint for a specific room in a house - while earlier phases identified what rooms we need, this phase specifies every detail down to the electrical outlets and window dimensions.
+Think of this as creating a detailed greenprint for a specific room in a house - while earlier phases identified what rooms we need, this phase specifies every detail down to the electrical outlets and window dimensions.
 </trigger_recognition>
 
 <preparation_mindset>
@@ -268,7 +268,7 @@ Your response must be a valid JSON object with ALL task attributes plus detailed
   "parentId": "parent-id",
   "mustBeCodedInCodeBase": true,
   "levelOfGranularity": 8,
-  "isReachableByLowLevelDevelopers": true,
+  "isReachableByEntryLevelDevelopers": true,
   "children": null,
   "readyForDevelopment": true,
   "indicationsForDevelopment": {

@@ -2,19 +2,13 @@ import { Sparkles } from "lucide-react";
 import { useAIAssistant } from "../hooks/useAIAssistant";
 import { useEffect, useState } from "react";
 import { TreeNode } from "../types/tree";
-
-// function convertToTreeNode(node: any): TreeNode {
-//   return {
-//     id: node.id || String(Math.random()),
-//     title: node.title || '',
-//     description: node.description || '',
-//     children: node.children?.map(convertToTreeNode) || null,
-//   };
-// }
+import { useTreeState } from "../hooks/useTreeState";
 
 export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => void, tree: TreeNode }) {
 
   const { generateInitialTree, addAttributesToTree } = useAIAssistant();
+
+  const { addChildrenWithAI } = useTreeState();
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,23 +16,15 @@ export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => v
 
   console.log("tree from modal: ", tree);
 
-
+// here one inner tree will be getter from the ai assistant the first time, the next subtasks can be added manually with ot without the assistant's help
   useEffect(() => {
     if (fillingTree) {
       console.log("tree in useEffect fillingTree: ", tree);
-
-      const timeout = setTimeout(() => {
-        console.log("tree in timeout: ", tree);
-      
-      addAttributesToTree(tree).then(completedTree => {
-        console.log("completedTree: ", completedTree);
-        setTree(completedTree);
-
-        setFillingTree(false);
+      tree.children?.forEach((child) => {
+        addChildrenWithAI(child.id);
       });
-      }, 1000);
 
-      return () => clearTimeout(timeout);
+      setFillingTree(false);
     }
   }, [fillingTree]);
 
@@ -94,7 +80,7 @@ export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => v
       <button 
         type="submit" 
         disabled={!prompt.trim() || isLoading}
-        className="flex justify-center items-center text-center gap-2 bg-fuchsia-500 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex justify-center items-center text-center gap-2 bg-emerald-500 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Sparkles className="w-4 h-4" />
         <p>{isLoading ? 'Generating...' : 'Generate'}</p>
@@ -103,3 +89,5 @@ export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => v
     </form>
   </div>;
 }
+
+

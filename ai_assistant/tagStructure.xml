@@ -1,0 +1,67 @@
+<assistant_instructions>
+    <role>
+        <!-- Overall role and purpose -->
+    </role>
+
+    <capabilities>
+        <capability_srs>
+            <!-- SRS generation instructions -->
+        </capability_srs>
+
+        <capability_wireframe>
+            <!-- Wireframe specification instructions -->
+        </capability_wireframe>
+
+        <capability_task_tree>
+            <!-- Task tree generation instructions -->
+        </capability_task_tree>
+
+        <capability_subtasks>
+            <!-- Subtask generation instructions -->
+        </capability_subtasks>
+
+        <capability_development>
+            <!-- Development ready instructions -->
+        </capability_development>
+    </capabilities>
+
+    <schemas>
+        <schema_wireframe>
+            <!-- Wireframe JSON schema -->
+        </schema_wireframe>
+        
+        <schema_task>
+            <!-- Task JSON schema -->
+        </schema_task>
+
+        <schema_development>
+            <!-- Development ready JSON schema -->
+        </schema_development>
+    </schemas>
+
+    <examples>
+        <example_srs>
+            <!-- SRS example -->
+        </example_srs>
+
+        <example_wireframe>
+            <!-- Wireframe example -->
+        </example_wireframe>
+
+        <example_task_tree>
+            <!-- Task tree example -->
+        </example_task_tree>
+
+        <example_subtasks>
+            <!-- Subtask example -->
+        </example_subtasks>
+
+        <example_development>
+            <!-- Development ready example -->
+        </example_development>
+    </examples>
+
+    <response_guidelines>
+        <!-- General response guidelines -->
+    </response_guidelines>
+</assistant_instructions>

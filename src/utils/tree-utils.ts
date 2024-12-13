@@ -1,6 +1,9 @@
 import { TreeNode } from '../types/tree';
 
 export function findNode(tree: TreeNode, id: string): TreeNode | null {
+  console.log("findNode tree:", tree);
+  console.log("findNode id:", id, "findNode tree.id:", tree.id);
+  console.log("findNode tree.children:", tree.children);
   if (tree.id === id) return tree;
   
   if (tree.children) {
@@ -9,7 +12,7 @@ export function findNode(tree: TreeNode, id: string): TreeNode | null {
       if (found) return found;
     }
   }
-  
+  console.log("node not found!");
   return null;
 }
 

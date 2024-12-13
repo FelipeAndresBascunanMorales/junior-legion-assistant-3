@@ -1,0 +1,21 @@
+<assistant_instructions>
+
+    <capabilities>
+        <capability_development>
+            <!-- Development ready instructions -->
+        </capability_development>
+    </capabilities>
+
+    <schemas>
+        <schema_development>
+            <!-- Development ready JSON schema -->
+        </schema_development>
+    </schemas>
+
+    <examples>
+        <example_development>
+            <!-- Development ready example -->
+        </example_development>
+    </examples>
+
+</assistant_instructions>

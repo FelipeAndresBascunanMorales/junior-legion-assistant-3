@@ -6,7 +6,7 @@ const octokit = new Octokit({
 });
 
 const REPO_OWNER = 'FelipeAndresBascunanMorales';
-const REPO_NAME = 'junior-legion-assistant-3';
+const REPO_NAME = 'eschatological-messages';
 const BRANCH = 'main';
 
 interface TreeData {
@@ -186,7 +186,7 @@ export async function getRepoContents() {
   // Get the tree recursively
   const { data: { tree } } = await octokit.rest.git.getTree({
     owner: "FelipeAndresBascunanMorales",
-    repo: "junior-legion-assistant-3",
+    repo: "eschatological-messages",
     tree_sha: "junior-partner-contributor", // or your branch
     recursive: "1"
   });
@@ -198,7 +198,7 @@ export async function getRepoContents() {
       .map(async file => {
         const { data } = await octokit.rest.git.getBlob({
           owner: "FelipeAndresBascunanMorales",
-          repo: "junior-legion-assistant-3",
+          repo: "eschatological-messages",
           file_sha: file.sha ?? ''
         });
 
@@ -230,7 +230,7 @@ export async function getRepoContents() {
 export async function handleLargeRepo() {
   const { data: { tree } } = await octokit.rest.git.getTree({
     owner: "FelipeAndresBascunanMorales",
-    repo: "junior-legion-assistant-3",
+    repo: "eschatological-messages",
     tree_sha: "junior-partner-contributor",
     recursive: "1"
   });
@@ -250,7 +250,7 @@ export async function handleLargeRepo() {
       batch.map(async file => {
         const { data } = await octokit.rest.git.getBlob({
           owner: "FelipeAndresBascunanMorales",
-          repo: "junior-legion-assistant-3",
+          repo: "eschatological-messages",
           file_sha: file.sha ?? ''
         });
 

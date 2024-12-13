@@ -5,7 +5,7 @@ import { TreeNode } from "../../types/tree";
 const PROJECT_MANAGER_ASSISTANT_ID = "asst_VTGGJNCkPc6oWAlm3EahI6Yi";
 let threadId: string | null = null;
 
-export async function callGenerateInitialTree(
+export async function callGenerateTree(
     prompt: string,
     openai: OpenAI,
     currentNode?: TreeNode | null,
@@ -40,16 +40,19 @@ export async function callGenerateInitialTree(
   }
 
   
-export async function callAddAttributesToTree(
+export async function callAddReadyForDevelopmentAttributesToTask(
   currentNode: TreeNode | null,
+  tree: TreeNode | null,
   openai: OpenAI,
   prompt?: string,
 ): Promise<TreeNode> {
   // wake up the assistant
   const assistant = await openai.beta.assistants.retrieve(PROJECT_MANAGER_ASSISTANT_ID);
 
+  const { children, ...lonelyTask } = currentNode;
+
   if (!prompt) {
-    prompt = "Add attributes to all the following tree of tasks: " + JSON.stringify(currentNode);
+    prompt = "Add the readyForDevelopment related attributes to this task: " + JSON.stringify(lonelyTask) + "this is the tree for reference: " + JSON.stringify(tree) ;
   }
 
   if (!threadId) {

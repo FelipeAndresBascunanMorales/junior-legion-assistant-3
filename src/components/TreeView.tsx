@@ -8,6 +8,8 @@ interface TreeViewProps {
   onToggleLock: (nodeId: string) => void;
   onDelete: (nodeId: string) => void;
   onZoomIn: (nodeId: string) => void;
+  onAddChildrenWithAI: (nodeId: string, prompt?: string) => void;
+  onPrepare: (nodeId: string) => void;
 }
 
 export function TreeView({
@@ -16,12 +18,14 @@ export function TreeView({
   onUpdateContent,
   onToggleLock,
   onDelete,
-  onZoomIn
+  onZoomIn,
+  onAddChildrenWithAI,
+  onPrepare
 }: TreeViewProps) {
 
   const renderNode = (node: TreeNodeType) => (
     <div key={node.id} className="flex flex-col items-center">
-      <div className="relative">
+      <div className="relative ">
         <TreeNodeComponent
           node={node}
           onAddChild={onAddChild}
@@ -29,6 +33,8 @@ export function TreeView({
           onToggleLock={onToggleLock}
           onDelete={onDelete}
           onZoomIn={onZoomIn}
+          onAddChildrenWithAI={onAddChildrenWithAI}
+          onPrepare={onPrepare}
         />
         {node.children && node.children.length > 0 && (
           <div className="absolute w-px h-16 border-l-2 border-gray-200 left-1/2 top-full" />
@@ -36,7 +42,7 @@ export function TreeView({
       </div>
       {node.children && node.children.length > 0 && (
         <div className="flex gap-8 mt-16">
-          <div className="flex gap-8 pt-16 border-2 px-2 pb-16 bg-fuchsia-400/20 rounded-lg ">
+          <div className="flex gap-8 pt-16 border-2 px-2 pb-16 bg-emerald-400/20 rounded-lg ">
             {node.children.map(childNode => renderNode(childNode))}
           </div>
         </div>

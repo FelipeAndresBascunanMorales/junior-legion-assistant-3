@@ -8,7 +8,7 @@ export function LashTheAI() {
   const { tree } = useTreeState();
 
   return <div className="flex flex-col gap-2 h-64 items-center justify-center">
-    <button className="flex items-center justify-center gap-2 bg-fuchsia-500 text-white p-2 px-4 rounded-md" onClick={async () => {
+    <button className="flex items-center justify-center gap-2 bg-emerald-500 text-white p-2 px-4 rounded-md" onClick={async () => {
       const result = await solveATaskWithAI(tree, null);
       console.log("in LashTheAI - result: ", result);
     }}>
