@@ -7,7 +7,7 @@ const octokit = new Octokit({
 
 const REPO_OWNER = 'FelipeAndresBascunanMorales';
 const REPO_NAME = 'eschatological-messages';
-const BRANCH = 'main';
+const BRANCH = 'junior-partner-contributor';
 
 interface TreeData {
   tree: TreeNode;
@@ -25,7 +25,7 @@ interface ContentData {
   task_solved: "task identifier"
 }
 
- // this code is working but just push the tree to github
+ // this code is working but JUST PUSH THE TREE to github
 export async function pushTreeToGithub(tree: TreeNode): Promise<void> {
   try {
     const treeData: TreeData = {
@@ -91,7 +91,7 @@ export async function pushTreeToGithub(tree: TreeNode): Promise<void> {
 }
 
 // this code push the changes on files according to the task solved
-export async function commitAssistantResponse(assistantResponse, branch = "junior-partner-contributor") {
+export async function commitAssistantResponse(assistantResponse: ContentData, branch = "junior-partner-contributor") {
   const { files, task_solved } = assistantResponse;
   
   try {
@@ -112,7 +112,6 @@ export async function commitAssistantResponse(assistantResponse, branch = "junio
       sha: latestCommitSha,
     });
 
-    console.log("in commitAssistantResponse - newBranch: ", newBranch);
     // 3. Create blobs for each file
     const fileBlobs = await Promise.all(
       files.map(async file => {
@@ -126,7 +125,7 @@ export async function commitAssistantResponse(assistantResponse, branch = "junio
         return {
           path: file.path.replace('tsx.ts', 'tsx'),
           sha: blob.sha,
-          mode: "100644", // regular file
+          mode: "100644",
           type: "blob",
         };
       })
@@ -174,10 +173,9 @@ export async function commitAssistantResponse(assistantResponse, branch = "junio
     };
 
   } catch (error) {
-    console.error('Error during commit process:', error);
     return {
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
     };
   }
 }
@@ -194,7 +192,7 @@ export async function getRepoContents() {
   // Get file paths and their streams
   const fileStreams = await Promise.all(
     tree
-      .filter(item => item.type === "blob" && item.path?.startsWith("src/") && (item.path?.endsWith('.tsx') || item.path?.endsWith('.ts')))
+      .filter(item => item.type === "blob" && item.path?.startsWith("app/") && (item.path?.endsWith('.tsx') || item.path?.endsWith('.ts')))
       .map(async file => {
         const { data } = await octokit.rest.git.getBlob({
           owner: "FelipeAndresBascunanMorales",

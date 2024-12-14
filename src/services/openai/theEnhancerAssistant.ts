@@ -1,8 +1,7 @@
-import OpenAI from "openai";
+import { openai } from "../../hooks/useAIAssistant";
 
 export async function callEnhancerAssistant(
   prompt: string,
-  openai: OpenAI
 ) {
   const response = await openai.chat.completions.create({
   model: "gpt-4o-mini",

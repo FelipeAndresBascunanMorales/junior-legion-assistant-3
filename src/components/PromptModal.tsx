@@ -14,41 +14,27 @@ export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => v
 
   const [fillingTree, setFillingTree] = useState(false);
 
-  console.log("tree from modal: ", tree);
-
-// here one inner tree will be getter from the ai assistant the first time, the next subtasks can be added manually with ot without the assistant's help
   useEffect(() => {
     if (fillingTree) {
-      console.log("tree in useEffect fillingTree: ", tree);
       tree.children?.forEach((child) => {
         addChildrenWithAI(child.id);
       });
-
       setFillingTree(false);
     }
   }, [fillingTree]);
 
-  
   useEffect(() => {
     if (fillingTree) {
-      console.log("tree in useEffect fillingTree: ", tree);
-
       const timeout = setTimeout(() => {
-        console.log("tree in timeout: ", tree);
-      
-      addAttributesToTree(tree).then(completedTree => {
-        console.log("completedTree: ", completedTree);
-        setTree(completedTree);
-
-        setFillingTree(false);
-      });
+        addAttributesToTree(tree).then(completedTree => {
+          setTree(completedTree);
+          setFillingTree(false);
+        });
       }, 1000);
       
       return () => clearTimeout(timeout);
     }
   }, [fillingTree]);
-
-
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -56,18 +42,10 @@ export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => v
 
     try {      
       const newTree = await generateInitialTree(prompt);
-      setTree(
-        newTree
-      )
-      console.log("tree from modal after setting: ", tree);
+      setTree(newTree);
       setFillingTree(true);
-      // setTree(prev => ({...prev, children: newTree.children}));
-
-      // const newTreeWithAttributes = await addAttributesToTree(tree);
-      // setTree(newTreeWithAttributes);
     } catch (error) {
       console.error('Error generating tree:', error);
-      // You might want to add error handling UI here
     } finally {
       setIsLoading(false);
     }

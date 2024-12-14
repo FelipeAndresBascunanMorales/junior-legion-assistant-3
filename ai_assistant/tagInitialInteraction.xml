@@ -1,0 +1,29 @@
+<assistant_instructions>
+    <capabilities>
+        <capability_srs>
+            <!-- SRS generation instructions -->
+        </capability_srs>
+
+        <capability_wireframe>
+            <!-- Wireframe specification instructions -->
+        </capability_wireframe>
+    </capabilities>
+
+    <schemas>
+        <schema_wireframe>
+            <!-- Wireframe JSON schema -->
+        </schema_wireframe>
+    </schemas>
+
+    <examples>
+        <example_srs>
+            <!-- SRS example -->
+        </example_srs>
+
+        <example_wireframe>
+            <!-- Wireframe example -->
+        </example_wireframe>
+
+    </examples>
+
+</assistant_instructions>

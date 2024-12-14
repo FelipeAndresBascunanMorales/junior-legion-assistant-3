@@ -1,18 +1,21 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import OpenAI from 'openai';
 import { parseAssistantResponseToTreeNode, TreeNode } from '../types/tree';
 import { pushTreeToGithub, getRepoContents, commitAssistantResponse } from '../services/github';
-import { generateNodeContent, solveATaskContent } from '../services/openai';
+import { generateNodeContent } from '../services/openai';
 import { callEnhancerAssistant } from '../services/openai/theEnhancerAssistant';
-import { callAddReadyForDevelopmentAttributesToTask, callGenerateTree } from '../services/openai/theProductManagerAssistant';
+import { callAddReadyForDevelopmentAttributesToTask, callGenerateTree, generateSrs, generateWireframe } from '../services/openai/theProductManagerAssistant';
+import { callSolveATask, callSolveATaskAutonomously } from '../services/openai/theJuniorDevAssistant';
 
-
-const openai = new OpenAI({
+export const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true
 });
 
 export function useAIAssistant() {
+  const [srsContent, setSrsContent] = useState<string>("srs content");
+  const [wireframeContent, setWireframeContent] = useState<string>("wireframe content");
+
   const generateContent = useCallback(async (
     node: TreeNode,
     parentNode: TreeNode | null,
@@ -27,10 +30,24 @@ export function useAIAssistant() {
   }, []);
 
   const generateInitialTree = useCallback(async (prompt: string) => {
-  // 1.- Enhance the prompt
-  const enhancedPrompt = await callEnhancerAssistant(prompt, openai);
-  // 2.- Generate the list of tasks
-  return parseAssistantResponseToTreeNode(await callGenerateTree(enhancedPrompt, openai));
+    try {
+      // 1.- Enhance the prompt
+      const enhancedPrompt = await callEnhancerAssistant(prompt);
+      
+      // 2.- Generate SRS and wireframe content
+      const newSrsContent = await generateSrs(enhancedPrompt);
+      const newWireframeContent = await generateWireframe(enhancedPrompt);
+      
+      // 3.- Update the state
+      setSrsContent(newSrsContent);
+      setWireframeContent(newWireframeContent);
+
+      // 4.- Generate the list of tasks
+      return parseAssistantResponseToTreeNode(await callGenerateTree(enhancedPrompt));
+    } catch (error) {
+      console.error('Error in generateInitialTree:', error);
+      throw error;
+    }
   }, []);
 
   const generateTree = useCallback(async (prompt: string, node: TreeNode | null, tree: TreeNode | null) => {
@@ -45,10 +62,8 @@ export function useAIAssistant() {
   const addAttributesToTreeStandBy = useCallback(async (tree: TreeNode) => {
     //take uncompleted task from the tree
     const uncompletedTask = tree.children?.find(child => !child.description);
-    console.log("uncompletedTask from addAttributesToTree: ", uncompletedTask);
     if (uncompletedTask) {
       const completedTasks = callAddAttributesToTree(uncompletedTask);
-      console.log("completedTasks from addAttributesToTree: ", completedTasks);
       const completedTree = {
         ...tree,
         children: tree.children?.map(child => {
@@ -58,8 +73,6 @@ export function useAIAssistant() {
           return child;
         })
       };
-
-      console.log("completedTree: ", completedTree);
       return completedTree;
     }
     return tree;
@@ -75,16 +88,23 @@ export function useAIAssistant() {
     }
   }, []);
 
-
   const solveATaskWithAI = useCallback(async (
     node: TreeNode | null,
     parentNode: TreeNode | null,
   ) => {
     const repo = await getRepoContents();
-    const solutionToCommit = await solveATaskContent(repo, node, parentNode);
-    console.log("in useAIAssistant - solutionToCommit: ", solutionToCommit);
+    const solutionToCommit = await callSolveATask(repo, node, parentNode, openai);
     const assistantResponse = await commitAssistantResponse(solutionToCommit);
-    console.log("in useAIAssistant - assistantResponse: ", assistantResponse);
+    return assistantResponse;
+  }, []);
+
+  const solveATaskWithAIAutonomously = useCallback(async (
+    node: TreeNode | null,
+    parentNode: TreeNode | null,
+  ) => {
+    const repo = await getRepoContents();
+    const solutionToCommit = await callSolveATaskAutonomously(repo, node, parentNode, openai);
+    const assistantResponse = await commitAssistantResponse(solutionToCommit);
     return assistantResponse;
   }, []);
 
@@ -95,7 +115,10 @@ export function useAIAssistant() {
     saveToGithub,
     solveATaskWithAI,
     generateTree,
-    addReadyForDevelopmentAttributes
+    addReadyForDevelopmentAttributes,
+    solveATaskWithAIAutonomously,
+    srsContent,
+    wireframeContent
   };
 }
 

@@ -19,10 +19,7 @@ const nodeUpdateSchema = z.object({
 
 type NodeUpdate = z.infer<typeof nodeUpdateSchema>;
 
-export async function solveATaskContent(contents: any, node: TreeNode | null, parentNode: TreeNode | null): Promise<TreeNode> {
-  const result = await callSolveATaskContent(contents, node, parentNode, openai);
-  return result;
-}
+
 // this is a previous version of the generateNodeContent function
 
 export async function generateNodeContent(currentNode: TreeNode, parentNode: TreeNode | null, prompt: string): Promise<NodeUpdate> {

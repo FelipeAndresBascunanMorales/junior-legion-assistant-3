@@ -1,13 +1,42 @@
-import OpenAI from "openai";
 import { TreeNode } from "../../types/tree";
+import { openai } from "../../hooks/useAIAssistant";
 // import { ThreadManager } from "./threadManager";
 
 const PROJECT_MANAGER_ASSISTANT_ID = "asst_VTGGJNCkPc6oWAlm3EahI6Yi";
 let threadId: string | null = null;
 
+export async function sendPrompt(prompt: string) {
+  const assistant = await openai.beta.assistants.retrieve(PROJECT_MANAGER_ASSISTANT_ID);
+  if (!threadId) {
+    const thread = await openai.beta.threads.create();
+    threadId = thread.id;
+  }
+  const message = await openai.beta.threads.messages.create(threadId, {
+    role: "user",
+    content: prompt
+  });
+
+  const run = await openai.beta.threads.runs.createAndPoll(threadId, {
+    assistant_id: assistant.id,
+  });
+
+  if (run.status === 'completed') {
+    const responseData = await openai.beta.threads.messages.list(threadId);
+    const newTree = JSON.parse(responseData.data[0].content[0].text.value);
+    return newTree;
+  }
+}
+
+export async function generateSrs(prompt: string) {
+  return sendPrompt(`generate SRS content for the following specification: ${prompt}`);
+}
+
+export async function generateWireframe(prompt: string) {
+  return sendPrompt(`generate wireframe content for the following specification: ${prompt}`);
+}
+
 export async function callGenerateTree(
     prompt: string,
-    openai: OpenAI,
     currentNode?: TreeNode | null,
     tree?: TreeNode | null
   ): Promise<TreeNode> {
@@ -15,26 +44,26 @@ export async function callGenerateTree(
     const assistant = await openai.beta.assistants.retrieve(PROJECT_MANAGER_ASSISTANT_ID);
   
     // create a thread
-    const thread = await openai.beta.threads.create();
-    threadId = thread.id;
-    const message = await openai.beta.threads.messages.create(thread.id, {
+    if (!threadId) {
+      const thread = await openai.beta.threads.create();
+      threadId = thread.id;
+    }
+
+    const message = await openai.beta.threads.messages.create(threadId, {
       role: "user",
       content: prompt
     });
   
     // create a run
-    const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
+    const run = await openai.beta.threads.runs.createAndPoll(threadId, {
       assistant_id: assistant.id,
     });
   
     if (run.status === 'completed') {
-      const responseData = await openai.beta.threads.messages.list(run.thread_id);
+      const responseData = await openai.beta.threads.messages.list(threadId);
       const newTree = JSON.parse(responseData.data[0].content[0].text.value);
-      console.log("responseData: ", responseData);
-      console.log("newTree (parsed): ", newTree);
       return newTree;
     } else {
-      console.log(run.status);
       throw new Error(`OpenAI run failed with status: ${run.status}`);
     }
   }
@@ -43,7 +72,6 @@ export async function callGenerateTree(
 export async function callAddReadyForDevelopmentAttributesToTask(
   currentNode: TreeNode | null,
   tree: TreeNode | null,
-  openai: OpenAI,
   prompt?: string,
 ): Promise<TreeNode> {
   // wake up the assistant
@@ -74,11 +102,8 @@ export async function callAddReadyForDevelopmentAttributesToTask(
   if (run.status === 'completed') {
     const responseData = await openai.beta.threads.messages.list(run.thread_id);
     const newTree = JSON.parse(responseData.data[0].content[0].text.value);
-    console.log("responseData from the addAttributesToTree function: ", responseData);
-    console.log("newTree (parsed) from the addAttributesToTree function: ", newTree);
     return newTree;
   } else {
-    console.log(run.status);
     throw new Error(`OpenAI run failed with status: ${run.status}`);
   }
 }

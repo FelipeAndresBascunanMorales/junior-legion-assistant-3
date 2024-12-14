@@ -3,10 +3,10 @@ import { TreeNode } from '../types/tree';
 import { generateId } from '../utils/helpers';
 import { findNode, lockParentNodes } from '../utils/tree-utils';
 import { useAIAssistant } from './useAIAssistant'
-
+import { aGoodResponse } from '../../ai_assistant/aGoodResponse';
 
 export function useTreeState() {
-  const [tree, setTree] = useState<TreeNode>({
+  const [tree, setTree] = useState<TreeNode>( aGoodResponse || {
     id: generateId(),
     title: 'Root',
     description: 'Add a description',
@@ -24,13 +24,12 @@ export function useTreeState() {
   })
 
   const setTreeWithDebug = useCallback((newTree: TreeNode) => {
-    console.log("Setting new tree:", newTree);
     setTree(newTree);
   }, []);
 
 
   // const { generateContent, saveToGithub } = useAIAssistant();
-  const { generateContent, generateTree, addReadyForDevelopmentAttributes } = useAIAssistant();
+  const { generateContent, generateTree, addReadyForDevelopmentAttributes, solveATaskWithAI } = useAIAssistant();
 
   const generateWithAI = useCallback(async (parentId: string, aiPrompt?: string) => {
     const parentNode = findNode(tree, parentId);
@@ -80,13 +79,10 @@ export function useTreeState() {
   }, [tree]);
 
   const addChildrenWithAI = useCallback(async (parentId: string, prompt?: string) => {
-    console.log("Adding children with AI for parentId:", parentId);
     const parentNode = findNode(tree, parentId);
-    console.log("parentNode:", parentNode);
     if (!parentNode) return;
     const updatedSubtask = await generateTree(`separate this task in subtasks please: ${JSON.stringify(parentNode)} ${prompt ? `And consider: ${prompt}` : ''}`, null, tree);
     
-    console.log("updatedSubtask:", updatedSubtask);
     setTree((current) => {
       const updatedTree = (currentTree: TreeNode, parentId: string): TreeNode => {
         if (currentTree.id === parentId) {
@@ -97,13 +93,11 @@ export function useTreeState() {
               : updatedSubtask.children || []
           }
         }
-        console.log("currentTree:", currentTree);
         return {
           ...currentTree,
           children: currentTree.children ? currentTree.children.map(child => updatedTree(child, parentId)) : null
         }
       }
-      console.log("we will call updatedTree:", updatedTree(current, parentId));
       return updatedTree(current, parentId);
     });
   }, [generateTree, tree]);
@@ -179,8 +173,6 @@ export function useTreeState() {
     const node = findNode(tree, nodeId);
     if (node) {
       const newTree = await addReadyForDevelopmentAttributes(node, tree);
-      console.log("prepare node:", node);
-      console.log("prepare newTree:", newTree);
       setTree(prev => {
         const updatedTree = (currentNode: TreeNode): TreeNode => {
           if (currentNode.id === nodeId) {
@@ -194,11 +186,17 @@ export function useTreeState() {
             children: currentNode.children ? currentNode.children?.map(child => updatedTree(child)) : null
           };
         };
-        console.log("node Updated:", findNode(prev, nodeId));
         return updatedTree(prev);
       });
     }
   }, [addReadyForDevelopmentAttributes, tree]);
+
+  const solveWithAI = useCallback(async (nodeId: string) => {
+    const node = findNode(tree, nodeId);
+    if (node) {
+      const newTree = await solveATaskWithAI(tree, node);
+    }
+  }, [solveATaskWithAI, tree]);
 
   const zoomIn = useCallback((nodeId: string) => {
     const node = findNode(tree, nodeId);
@@ -207,5 +205,5 @@ export function useTreeState() {
     }
   }, [tree]);
 
-  return { tree, setTree: setTreeWithDebug, addChild, addChildrenWithAI, generateWithAI, updateNodeContent, toggleLock, deleteNode, prepare, zoomIn };
+  return { tree, setTree: setTreeWithDebug, addChild, addChildrenWithAI, generateWithAI, updateNodeContent, toggleLock, deleteNode, prepare, solveWithAI, zoomIn };
 }

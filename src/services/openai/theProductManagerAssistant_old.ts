@@ -28,11 +28,8 @@ export async function callGenerateTreeContent(
     if (run.status === 'completed') {
       const responseData = await openai.beta.threads.messages.list(run.thread_id);
       const newTree = JSON.parse(responseData.data[0].content[0].text.value);
-      console.log("responseData: ", responseData);
-      console.log("newTree (parsed): ", newTree);
       return newTree;
     } else {
-      console.log(run.status);
       throw new Error(`OpenAI run failed with status: ${run.status}`);
     }
   }

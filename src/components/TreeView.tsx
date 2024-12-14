@@ -10,6 +10,7 @@ interface TreeViewProps {
   onZoomIn: (nodeId: string) => void;
   onAddChildrenWithAI: (nodeId: string, prompt?: string) => void;
   onPrepare: (nodeId: string) => void;
+  onSolveWithAI: (nodeId: string) => void;
 }
 
 export function TreeView({
@@ -20,7 +21,8 @@ export function TreeView({
   onDelete,
   onZoomIn,
   onAddChildrenWithAI,
-  onPrepare
+  onPrepare,
+  onSolveWithAI
 }: TreeViewProps) {
 
   const renderNode = (node: TreeNodeType) => (
@@ -35,6 +37,7 @@ export function TreeView({
           onZoomIn={onZoomIn}
           onAddChildrenWithAI={onAddChildrenWithAI}
           onPrepare={onPrepare}
+          onSolveWithAI={onSolveWithAI}
         />
         {node.children && node.children.length > 0 && (
           <div className="absolute w-px h-16 border-l-2 border-gray-200 left-1/2 top-full" />

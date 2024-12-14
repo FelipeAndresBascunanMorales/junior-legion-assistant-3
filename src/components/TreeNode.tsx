@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Unlock, Plus, X, Search, Layers, Hammer, RefreshCcw, Check, WandSparkles } from 'lucide-react';
+import { Lock, Unlock, Plus, X, Search, Layers, Hammer, RefreshCcw, Check, WandSparkles, Sparkle } from 'lucide-react';
 import { TreeNode as TreeNodeType } from '../types/tree';
 import clsx from 'clsx';
 
@@ -12,6 +12,7 @@ interface TreeNodeProps {
   onZoomIn: (nodeId: string) => void;
   onAddChildrenWithAI: (nodeId: string, prompt?: string) => void;
   onPrepare: (nodeId: string) => void;
+  onSolveWithAI: (nodeId: string) => void;
 }
 
 export function TreeNode({
@@ -22,7 +23,8 @@ export function TreeNode({
   onDelete,
   onZoomIn,
   onAddChildrenWithAI,
-  onPrepare
+  onPrepare,
+  onSolveWithAI
 }: TreeNodeProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(node.title);
@@ -96,7 +98,7 @@ export function TreeNode({
               )}
             </div>
           ) : (
-            <div className="min-h-[80px] py-4">
+            <div className="min-h-[80px] py-2">
               <h3 className="font-semibold mb-2 flex items-center gap-2">
                 {node.title}
               </h3>
@@ -148,7 +150,7 @@ export function TreeNode({
           {!node.isLocked && (
             <>
               <button
-                onClick={() => solveWithAI(node.id)}
+                onClick={() => onSolveWithAI(node.id)}
                 className="p-1 text-gray-500 hover:text-green-500 rounded"
                 title="WandSparkles"
                 hidden={!node.readyForDevelopment}
@@ -186,7 +188,7 @@ export function TreeNode({
         {/* the order indicator */}
         <div className="absolute -bottom-2 -left-2 flex gap-1">
           <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center text-blue-700">
-            {node.order}
+            {node.relevance}
           </div>
         </div>
 
@@ -214,7 +216,7 @@ export function TreeNode({
             className="absolute p-1 bg-white border rounded-full shadow-sm hover:bg-gray-50 ml-2 group-hover:inline-block hidden transition-all"
             title="Regenerate"
           >
-            <RefreshCcw size={16} />
+            <Sparkle size={16} />
           </button>
           {/* input prompt */}
         </div>

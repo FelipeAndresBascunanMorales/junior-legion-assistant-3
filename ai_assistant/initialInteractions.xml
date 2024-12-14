@@ -1,0 +1,245 @@
+<capability_srs>
+    When asked to "generate SRS", create a software requirements specification document with:
+    Functional Requirements:
+    - User Interactions
+    - System Behaviors
+    - Data Management
+    - Business Rules
+
+    Non-Functional Requirements:
+    - Performance
+    - Security
+    - Usability
+    - Scalability
+    </capability_srs>
+
+    <capability_wireframe>
+    When asked to "generate wireframe specification", create a JSON object describing the UI layout with:
+    - Page structure
+    - Component hierarchy
+    - Essential UI elements
+    - Basic interactions
+    </capability_wireframe>
+</capabilities>
+
+<schemas>
+    <schema_wireframe>
+    {
+      "type": "object",
+      "required": ["pages"],
+      "properties": {
+        "pages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "path", "layout"],
+            "properties": {
+              "name": { "type": "string" },
+              "path": { "type": "string" },
+              "layout": {
+                "type": "object",
+                "required": ["components"],
+                "properties": {
+                  "components": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["type", "props"],
+                      "properties": {
+                        "type": { "type": "string" },
+                        "props": { "type": "object" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    </schema_wireframe>
+</schemas>
+
+<examples>
+    <example_srs>
+    # Software Requirements Specification - Task Management System
+     ## Functional Requirements
+
+    1. User Authentication & Authorization
+       - User registration with email verification
+       - Login with email/password
+       - Password reset functionality
+       - OAuth integration (Google, GitHub)
+       - Role-based access control (Admin, Manager, User)
+
+    2. Task Management
+       - Task creation with title, description, due date
+       - Task categorization and tagging
+       - Priority levels (Low, Medium, High, Urgent)
+       - Status tracking (Todo, In Progress, Review, Done)
+       - File attachments support
+       - Task assignment to team members
+       - Subtask creation and management
+
+    3. Team Collaboration
+       - Comments on tasks
+       - @mentions functionality
+       - Task sharing
+       - Team creation and management
+       - Activity logging and history
+       - Real-time updates for task changes
+
+    4. Workspace Organization
+       - Project creation and management
+       - Custom workflow definition
+       - Task filtering and search
+       - Multiple view options (List, Board, Calendar)
+       - Bulk task operations
+
+    ## Non-Functional Requirements
+
+    1. Performance
+       - Page load time < 2 seconds
+       - Real-time updates < 500ms
+       - Support for 10,000 concurrent users
+       - Smooth scrolling with 1000+ tasks
+       - Efficient task search and filtering
+
+    2. Security
+       - Data encryption in transit and at rest
+       - Regular security audits
+       - GDPR compliance
+       - Two-factor authentication
+       - Session management
+       - Rate limiting for API endpoints
+
+    3. Usability
+       - Responsive design (mobile, tablet, desktop)
+       - Offline functionality
+       - Intuitive UI/UX
+       - Keyboard shortcuts
+       - Accessibility compliance (WCAG 2.1)
+       - Multi-language support
+
+    4. Reliability
+       - 99.9% uptime
+       - Automated backups
+       - Error logging and monitoring
+       - Graceful degradation
+       - Data consistency checks
+    </example_srs>
+
+    <example_wireframe>
+    {
+      "pages": [
+        {
+          "name": "Dashboard",
+          "path": "/dashboard",
+          "layout": {
+            "components": [
+              {
+                "type": "header",
+                "props": {
+                  "navigation": {
+                    "type": "horizontal",
+                    "items": [
+                      { "label": "Dashboard", "path": "/dashboard" },
+                      { "label": "Projects", "path": "/projects" },
+                      { "label": "Tasks", "path": "/tasks" },
+                      { "label": "Team", "path": "/team" }
+                    ]
+                  },
+                  "userMenu": {
+                    "type": "dropdown",
+                    "items": [
+                      { "label": "Profile", "action": "navigate" },
+                      { "label": "Settings", "action": "navigate" },
+                      { "label": "Logout", "action": "function" }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "sidebar",
+                "props": {
+                  "width": "250px",
+                  "items": [
+                    {
+                      "type": "projectList",
+                      "props": {
+                        "title": "Projects",
+                        "showAddButton": true
+                      }
+                    },
+                    {
+                      "type": "filterSection",
+                      "props": {
+                        "title": "Filters",
+                        "filters": [
+                          { "label": "My Tasks", "type": "preset" },
+                          { "label": "Priority", "type": "multiple" },
+                          { "label": "Due Date", "type": "date" }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "mainContent",
+                "props": {
+                  "layout": "grid",
+                  "sections": [
+                    {
+                      "type": "statsGrid",
+                      "props": {
+                        "items": [
+                          { "title": "Total Tasks", "dataKey": "totalTasks" },
+                          { "title": "Completed", "dataKey": "completedTasks" },
+                          { "title": "Due Soon", "dataKey": "dueSoonTasks" },
+                          { "title": "Overdue", "dataKey": "overdueTasks" }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "taskBoard",
+                      "props": {
+                        "columns": [
+                          {
+                            "title": "To Do",
+                            "status": "todo",
+                            "allowAdd": true
+                          },
+                          {
+                            "title": "In Progress",
+                            "status": "in_progress"
+                          },
+                          {
+                            "title": "Review",
+                            "status": "review"
+                          },
+                          {
+                            "title": "Done",
+                            "status": "done"
+                          }
+                        ],
+                        "taskCard": {
+                          "showTitle": true,
+                          "showAssignee": true,
+                          "showDueDate": true,
+                          "showPriority": true,
+                          "showTags": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+    </example_wireframe>
+</examples>

@@ -1,4 +1,4 @@
-{
+export const aGoodResponse = {
   "id": "daily-divine-message",
   "title": "Develop Daily Divine Message Web Application",
   "description": "Create a web application that displays a daily divine message, with user engagement features and an archive for past messages.",
