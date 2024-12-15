@@ -20,7 +20,7 @@ export default function ShowDocument({
       {/* Collapsed view */}
       <div 
         onClick={() => setIsOpen(true)}
-        className="cursor-pointer hover:bg-gray-100 transition-colors"
+        className="w-full cursor-pointer hover:bg-gray-100 transition-colors"
       >
         <div className="flex items-center gap-2 p-4 rounded-md bg-yellow-200 border-b-2 border-l-2 border-red-500">
           <h2 className="text-sm font-semibold text-gray-800">{title}</h2>

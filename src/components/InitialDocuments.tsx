@@ -1,22 +1,25 @@
+import { Loader } from "lucide-react";
 import ShowDocument from "./showDocument";
 
 export default function InitialDocuments({
   srsContent,
   wireframeContent,
   enhancedPrompt,
+  loadingStep,
 }: {
   srsContent: string;
   wireframeContent: string;
   enhancedPrompt: string;
+  loadingStep: boolean[];
 }) {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-6 w-1/2">
       {/* Enhanced Prompt */}
-      <ShowDocument title="Enhanced Prompt" content={enhancedPrompt} />
+      <div className="flex flex-row gap-2 relative"><ShowDocument title="Enhanced Prompt" content={enhancedPrompt} /> { loadingStep[0] && (<Loader className="absolute right-2 top-2 w-4 h-4 animate-pulse text-emerald-700 transition-opacity duration-1000" />)}</div>
       {/* SRS Section */}
-      <ShowDocument title="Software Requirements Specification" content={srsContent} />
+      <div className="flex flex-row gap-2 relative"><ShowDocument title="Software Requirements Specification" content={srsContent} /> { loadingStep[1] && (<Loader className="absolute right-2 top-2 w-4 h-4 animate-pulse text-emerald-700 transition-opacity duration-1000" />)}</div>
       {/* Wireframe Section */}
-      <ShowDocument title="Wireframe Design" content={wireframeContent} />
+      <div className="flex flex-row gap-2 relative"><ShowDocument title="Wireframe Design" content={wireframeContent} /> { loadingStep[2] && (<Loader className="absolute right-2 top-2 w-4 h-4 animate-pulse text-emerald-700 transition-opacity duration-1000" />)}</div>
     </div>
   );
 }

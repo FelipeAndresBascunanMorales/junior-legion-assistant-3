@@ -15,17 +15,21 @@ export default function ControlPanel({ tree, setTree }: { tree: TreeNode, setTre
   const [enhancedPrompt, setEnhancedPrompt] = useState("");
   const [srsContent, setSrsContent] = useState("");
   const [wireframeContent, setWireframeContent] = useState("");
+  const [loadingStep, setLoadingStep] = useState([false, false, false]);
 
   const handleGenerateInitialTree = async (prompt: string) => {
     try {
-      const { enhancedPrompt: enhancedPrompt } = await generateDocuments(
-        prompt
-      );
+      setLoadingStep([true, true, true]);
+      const { enhancedPrompt: enhancedPrompt } = await generateDocuments(prompt);
       setEnhancedPrompt(enhancedPrompt);
-      const newSrs = await generateSrs(enhancedPrompt);
-      setSrsContent(newSrs);
-      const newWireframe = await generateWireframe(enhancedPrompt);
-      setWireframeContent(newWireframe);
+      
+      setLoadingStep([false, true, true]);
+      const srs = await generateSrs(enhancedPrompt);
+      setSrsContent(srs);
+      setLoadingStep([false, false, true]);
+      const wireframe = await generateWireframe(enhancedPrompt);
+      setWireframeContent(wireframe);
+      setLoadingStep([false, false, false]);
       const newTree = await generateInitialTree(enhancedPrompt);
       setTree(newTree);
     } catch (error) {
@@ -39,8 +43,9 @@ export default function ControlPanel({ tree, setTree }: { tree: TreeNode, setTre
         <InitialDocuments
           srsContent={srsContent}
           wireframeContent={wireframeContent}
-        enhancedPrompt={enhancedPrompt}
-      />
+          enhancedPrompt={enhancedPrompt}
+          loadingStep={loadingStep}
+        />
         <LashTheAI active={tree && tree.children && tree.children.length > 1 ? true : false}/>
       </div>
     </div>
