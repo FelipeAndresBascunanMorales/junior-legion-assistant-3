@@ -1,10 +1,10 @@
 import { useTreeState } from './hooks/useTreeState';
 import { TreeView } from './components/TreeView';
-import ControlPanel from './components/controlPanel';
+import ControlPanel from './components/ControlPanel';
 
 
 function App() {
-  const { tree, addChild, updateNodeContent, toggleLock, deleteNode, zoomIn, addChildrenWithAI, prepare, solveWithAI, handleGenerateInitialTree } = useTreeState();
+  const { tree, setTree, addChild, updateNodeContent, toggleLock, deleteNode, zoomIn, addChildrenWithAI, prepare, solveWithAI } = useTreeState();
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -15,7 +15,7 @@ function App() {
           </div>
         </h1>
         <div className="bg-white rounded-xl shadow-sm p-8 min-h-[600px]">
-          <ControlPanel handleGenerateInitialTree={handleGenerateInitialTree} tree={tree}/>
+          <ControlPanel setTree={setTree} tree={tree}/>
           <TreeView
             key={tree.id}
             tree={tree}

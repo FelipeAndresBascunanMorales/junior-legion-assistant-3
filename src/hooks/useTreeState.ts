@@ -6,7 +6,7 @@ import { useAIAssistant } from './useAIAssistant'
 import { aGoodResponse } from '../../ai_assistant/aGoodResponse';
 
 export function useTreeState() {
-  const [tree, setTree] = useState<TreeNode>( aGoodResponse || {
+  const [tree, setTree] = useState<TreeNode>( {
     id: generateId(),
     title: 'Root',
     description: 'Add a description',

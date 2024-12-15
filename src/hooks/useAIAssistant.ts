@@ -4,8 +4,9 @@ import { parseAssistantResponseToTreeNode, TreeNode } from '../types/tree';
 import { pushTreeToGithub, getRepoContents, commitAssistantResponse } from '../services/github';
 import { generateNodeContent } from '../services/openai';
 import { callEnhancerAssistant } from '../services/openai/theEnhancerAssistant';
-import { callAddReadyForDevelopmentAttributesToTask, callGenerateInitialTree, callGenerateTree, generateSrs, generateWireframe } from '../services/openai/theProductManagerAssistant';
+import { callAddReadyForDevelopmentAttributesToTask, callGenerateInitialTree, callGenerateSrs, callGenerateTree, callGenerateWireframe } from '../services/openai/theProductManagerAssistant';
 import { callSolveATask, callSolveATaskAutonomously } from '../services/openai/theJuniorDevAssistant';
+import { aGoodResponse } from '../utils/aGoodResponse';
 
 export const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -31,25 +32,52 @@ export function useAIAssistant() {
 
   const generateDocuments = useCallback(async (prompt: string) => {
       // 1.- Enhance the prompt
-      const enhancedPrompt = await callEnhancerAssistant(prompt);
       
-      // 2.- Generate SRS and wireframe content
-      const newSrsContent = await generateSrs(enhancedPrompt);
-      setSrsContent(newSrsContent);
-      const newWireframeContent = await generateWireframe(enhancedPrompt);
-      setWireframeContent(newWireframeContent);
-      
+      // const enhancedPrompt = await callEnhancerAssistant(prompt);
+      const enhancedPrompt = await new Promise(resolve => setTimeout(async () => {
+        resolve(prompt)
+      }, 1000))
+
+
+      // // 2.- Generate SRS and wireframe content
+      // const newSrsContent = await generateSrs(enhancedPrompt);
+      // setSrsContent(newSrsContent);
+      // const newWireframeContent = await generateWireframe(enhancedPrompt);
+      // setWireframeContent(newWireframeContent);
 
       return {
         enhancedPrompt: enhancedPrompt,
-        srsContent: newSrsContent,
-        wireframeContent: newWireframeContent
+        // srsContent: newSrsContent,
+        // wireframeContent: newWireframeContent
       };
   }, []);
 
+   const generateSrs = useCallback(async (prompt: string) => {
+    try {
+      return await callGenerateSrs(prompt);
+    } catch (error) {
+      console.error('Failed to generate SRS:', error);
+      throw error;
+    }
+   }, []);
+
+   const generateWireframe = useCallback(async (prompt: string) => {
+    try {
+      return await callGenerateWireframe(prompt);
+    } catch (error) {
+      console.error('Failed to generate wireframe:', error);
+      throw error;
+    }
+   }, []);
+
   const generateInitialTree = useCallback(async (prompt: string	) => {
     try {
-        return parseAssistantResponseToTreeNode(await callGenerateInitialTree());
+      // return parseAssistantResponseToTreeNode(await callGenerateInitialTree());
+      // fake response
+
+      return new Promise(resolve => setTimeout(async () => {
+        resolve(parseAssistantResponseToTreeNode(aGoodResponse))
+      }, 1000))
     } catch (error) {
       console.error('Error in generateInitialTree:', error);
       throw error;
@@ -105,7 +133,9 @@ export function useAIAssistant() {
     generateTree,
     addReadyForDevelopmentAttributes,
     solveATaskWithAIAutonomously,
-    generateDocuments
+    generateDocuments,
+    generateSrs,
+    generateWireframe
   };
 }
 

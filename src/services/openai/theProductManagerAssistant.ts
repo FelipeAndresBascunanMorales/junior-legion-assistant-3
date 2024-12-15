@@ -31,11 +31,11 @@ export async function sendPrompt(prompt: string) {
   }
 }
 
-export async function generateSrs(prompt: string) {
+export async function callGenerateSrs(prompt: string) {
   return sendPrompt(`generate SRS content for the following specification: ${prompt}`);
 }
 
-export async function generateWireframe(prompt: string) {
+export async function callGenerateWireframe(prompt: string) {
   return sendPrompt(`generate wireframe content for the following specification: ${prompt}`);
 }
 
