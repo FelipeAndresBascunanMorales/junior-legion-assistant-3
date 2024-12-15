@@ -29,7 +29,7 @@ export function useTreeState() {
 
 
   // const { generateContent, saveToGithub } = useAIAssistant();
-  const { generateContent, generateTree, addReadyForDevelopmentAttributes, solveATaskWithAI } = useAIAssistant();
+  const { generateContent, generateTree, addReadyForDevelopmentAttributes, solveATaskWithAI, generateInitialTree, generateDocuments } = useAIAssistant();
 
   const generateWithAI = useCallback(async (parentId: string, aiPrompt?: string) => {
     const parentNode = findNode(tree, parentId);
@@ -194,7 +194,7 @@ export function useTreeState() {
   const solveWithAI = useCallback(async (nodeId: string) => {
     const node = findNode(tree, nodeId);
     if (node) {
-      const newTree = await solveATaskWithAI(tree, node);
+      await solveATaskWithAI(tree, node);
     }
   }, [solveATaskWithAI, tree]);
 
@@ -205,5 +205,17 @@ export function useTreeState() {
     }
   }, [tree]);
 
-  return { tree, setTree: setTreeWithDebug, addChild, addChildrenWithAI, generateWithAI, updateNodeContent, toggleLock, deleteNode, prepare, solveWithAI, zoomIn };
+  const handleGenerateInitialTree = useCallback(async (prompt: string) => {
+    const { enhancedPrompt, srsContent, wireframeContent } = await generateDocuments(prompt);
+
+    console.log("enhancedPrompt: ", enhancedPrompt);
+    console.log("srsContent: ", srsContent);
+    console.log("wireframeContent: ", wireframeContent);
+    
+    const newTree = await generateInitialTree(prompt);
+    console.log("new tree after generateInitialTree: ", newTree);
+    setTree(newTree);
+  }, [generateDocuments, generateInitialTree]);
+
+  return { tree, setTree: setTreeWithDebug, addChild, addChildrenWithAI, generateWithAI, updateNodeContent, toggleLock, deleteNode, prepare, solveWithAI, zoomIn, handleGenerateInitialTree };
 }

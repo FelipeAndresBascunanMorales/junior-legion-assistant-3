@@ -1,49 +1,17 @@
 import { Sparkles } from "lucide-react";
-import { useAIAssistant } from "../hooks/useAIAssistant";
-import { useEffect, useState } from "react";
-import { TreeNode } from "../types/tree";
-import { useTreeState } from "../hooks/useTreeState";
+import { useState } from "react";
 
-export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => void, tree: TreeNode }) {
+export function PromptModal({ handleGenerateInitialTree }: { handleGenerateInitialTree: (prompt: string) => void }) {
 
-  const { generateInitialTree, addAttributesToTree } = useAIAssistant();
-
-  const { addChildrenWithAI } = useTreeState();
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const [fillingTree, setFillingTree] = useState(false);
-
-  useEffect(() => {
-    if (fillingTree) {
-      tree.children?.forEach((child) => {
-        addChildrenWithAI(child.id);
-      });
-      setFillingTree(false);
-    }
-  }, [fillingTree]);
-
-  useEffect(() => {
-    if (fillingTree) {
-      const timeout = setTimeout(() => {
-        addAttributesToTree(tree).then(completedTree => {
-          setTree(completedTree);
-          setFillingTree(false);
-        });
-      }, 1000);
-      
-      return () => clearTimeout(timeout);
-    }
-  }, [fillingTree]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {      
-      const newTree = await generateInitialTree(prompt);
-      setTree(newTree);
-      setFillingTree(true);
+    try {
+      handleGenerateInitialTree(prompt);
     } catch (error) {
       console.error('Error generating tree:', error);
     } finally {
@@ -53,7 +21,7 @@ export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => v
 
   return <div className="flex flex-col gap-4 p-4 h-64">
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-      <label htmlFor="prompt" className="text-lg font-bold">What do you want to develop?</label>
+      <label htmlFor="prompt" className="text-lg font-bold">Do you want to develop an app?</label>
       <input type="text" id="prompt" className="p-2 border border-gray-300 rounded-md" onChange={(e) => setPrompt(e.target.value)} />
       <button 
         type="submit" 
@@ -61,8 +29,7 @@ export function PromptModal( { setTree, tree }: { setTree: (tree: TreeNode) => v
         className="flex justify-center items-center text-center gap-2 bg-emerald-700 text-white p-2 rounded-md disabled:opacity-80 disabled:cursor-not-allowed"
       >
         <Sparkles className="w-4 h-4" />
-        <p>{isLoading ? 'Generating...' : 'Generate'}</p>
-        <p>{fillingTree ? 'Filling tree...' : ''}</p>
+        <p>{isLoading ? <span className="animate-pulse">Generating...</span> : 'Generate'}</p>
       </button>
     </form>
   </div>;

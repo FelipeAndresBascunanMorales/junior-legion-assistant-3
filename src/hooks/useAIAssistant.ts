@@ -4,7 +4,7 @@ import { parseAssistantResponseToTreeNode, TreeNode } from '../types/tree';
 import { pushTreeToGithub, getRepoContents, commitAssistantResponse } from '../services/github';
 import { generateNodeContent } from '../services/openai';
 import { callEnhancerAssistant } from '../services/openai/theEnhancerAssistant';
-import { callAddReadyForDevelopmentAttributesToTask, callGenerateTree, generateSrs, generateWireframe } from '../services/openai/theProductManagerAssistant';
+import { callAddReadyForDevelopmentAttributesToTask, callGenerateInitialTree, callGenerateTree, generateSrs, generateWireframe } from '../services/openai/theProductManagerAssistant';
 import { callSolveATask, callSolveATaskAutonomously } from '../services/openai/theJuniorDevAssistant';
 
 export const openai = new OpenAI({
@@ -13,8 +13,8 @@ export const openai = new OpenAI({
 });
 
 export function useAIAssistant() {
-  const [srsContent, setSrsContent] = useState<string>("srs content");
-  const [wireframeContent, setWireframeContent] = useState<string>("wireframe content");
+  const [srsContent, setSrsContent] = useState('');
+  const [wireframeContent, setWireframeContent] = useState('');
 
   const generateContent = useCallback(async (
     node: TreeNode,
@@ -29,55 +29,41 @@ export function useAIAssistant() {
     }
   }, []);
 
-  const generateInitialTree = useCallback(async (prompt: string) => {
-    try {
+  const generateDocuments = useCallback(async (prompt: string) => {
       // 1.- Enhance the prompt
       const enhancedPrompt = await callEnhancerAssistant(prompt);
       
       // 2.- Generate SRS and wireframe content
       const newSrsContent = await generateSrs(enhancedPrompt);
-      const newWireframeContent = await generateWireframe(enhancedPrompt);
-      
-      // 3.- Update the state
       setSrsContent(newSrsContent);
+      const newWireframeContent = await generateWireframe(enhancedPrompt);
       setWireframeContent(newWireframeContent);
+      
 
-      // 4.- Generate the list of tasks
-      return parseAssistantResponseToTreeNode(await callGenerateTree(enhancedPrompt));
+      return {
+        enhancedPrompt: enhancedPrompt,
+        srsContent: newSrsContent,
+        wireframeContent: newWireframeContent
+      };
+  }, []);
+
+  const generateInitialTree = useCallback(async (prompt: string	) => {
+    try {
+        return parseAssistantResponseToTreeNode(await callGenerateInitialTree());
     } catch (error) {
       console.error('Error in generateInitialTree:', error);
       throw error;
     }
-  }, []);
+  }, []); 
 
   const generateTree = useCallback(async (prompt: string, node: TreeNode | null, tree: TreeNode | null) => {
-    return parseAssistantResponseToTreeNode(await callGenerateTree(prompt, openai, node, tree));
+    return parseAssistantResponseToTreeNode(await callGenerateTree(prompt, node, tree));
   }, []);
 
   const addReadyForDevelopmentAttributes = useCallback(async (node: TreeNode, tree: TreeNode) => {
-    const treeWithAttributes = parseAssistantResponseToTreeNode(await callAddReadyForDevelopmentAttributesToTask(node, tree, openai));
+    const treeWithAttributes = parseAssistantResponseToTreeNode(await callAddReadyForDevelopmentAttributesToTask(node, tree));
     return treeWithAttributes;
   }, []);
-  
-  const addAttributesToTreeStandBy = useCallback(async (tree: TreeNode) => {
-    //take uncompleted task from the tree
-    const uncompletedTask = tree.children?.find(child => !child.description);
-    if (uncompletedTask) {
-      const completedTasks = callAddAttributesToTree(uncompletedTask);
-      const completedTree = {
-        ...tree,
-        children: tree.children?.map(child => {
-          if (uncompletedTasks.map(task => task.id).includes(child.id)) {
-            return completedTasks.then(tasks => tasks.find((task: TreeNode) => task.id === child.id)) as TreeNode;
-          }
-          return child;
-        })
-      };
-      return completedTree;
-    }
-    return tree;
-  }, []);
-
 
   const saveToGithub = useCallback(async (content: any) => {
     try {
@@ -110,6 +96,8 @@ export function useAIAssistant() {
 
 
   return {
+    srsContent,
+    wireframeContent,
     generateContent,
     generateInitialTree,
     saveToGithub,
@@ -117,8 +105,7 @@ export function useAIAssistant() {
     generateTree,
     addReadyForDevelopmentAttributes,
     solveATaskWithAIAutonomously,
-    srsContent,
-    wireframeContent
+    generateDocuments
   };
 }
 

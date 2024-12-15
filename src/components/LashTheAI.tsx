@@ -7,7 +7,7 @@ export function LashTheAI() {
   const { tree } = useTreeState();
 
   return <div className="flex flex-col gap-2 h-64 items-center justify-center">
-    <button className="flex items-center justify-center gap-2 bg-emerald-500 text-white p-2 px-4 rounded-md hover:bg-emerald-600" onClick={async () => {
+    <button className="flex items-center justify-center gap-2 bg-red-600 text-white p-2 px-4 rounded-md hover:bg-emerald-600 transition-colors" onClick={async () => {
       await solveATaskWithAIAutonomously(tree, null);
     }}>
       <span className="text-sm">Lash</span>
