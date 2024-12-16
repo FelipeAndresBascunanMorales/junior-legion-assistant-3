@@ -6,7 +6,7 @@ import { useAIAssistant } from './useAIAssistant'
 import { aGoodResponse } from '../../ai_assistant/aGoodResponse';
 
 export function useTreeState() {
-  const [tree, setTree] = useState<TreeNode>( {
+  const [tree, setTree] = useState<TreeNode>( aGoodResponse || {
     id: generateId(),
     title: 'Root',
     description: 'Add a description',
@@ -194,8 +194,10 @@ export function useTreeState() {
   const solveWithAI = useCallback(async (nodeId: string) => {
     const node = findNode(tree, nodeId);
     if (node) {
+      console.log('solving a task with AI');
       await solveATaskWithAI(tree, node);
     }
+    console.log('solved a task with AI');
   }, [solveATaskWithAI, tree]);
 
   const zoomIn = useCallback((nodeId: string) => {

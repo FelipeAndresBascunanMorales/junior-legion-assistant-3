@@ -48,19 +48,28 @@ export async function callSolveATask(
     return file;
   }));
 
+  console.log('files generated', files);
   const vectorStore = await openai.beta.vectorStores.create({
     name: "Repository Contents"
   });
+
+  console.log('vectorStore created', vectorStore);
 
   const fileBatch = await openai.beta.vectorStores.fileBatches.createAndPoll(vectorStore.id, {
     file_ids: files.map((file: any) => file.id)
   });
 
+  console.log('fileBatch created', fileBatch);
+
   await openai.beta.assistants.update(JUNIOR_DEVELOPER_ASSISTANT_ID, {
     tool_resources: { file_search: { vector_store_ids: [vectorStore.id] } },
   });
 
+  console.log('assistant updated', SENIOR_DEVELOPER_ASSISTANT_ID);
+
   const thread = await openai.beta.threads.create();
+
+  console.log('thread created', thread);
 
   const prompt = `
     given this task, read it, try to solve it and return the solution in json format.
@@ -79,10 +88,13 @@ export async function callSolveATask(
     assistant_id: SENIOR_DEVELOPER_ASSISTANT_ID,
   });
 
+  console.log('run created', run);
+
   if (run.status === 'completed') {
     const responseData = await openai.beta.threads.messages.list(run.thread_id);
+    console.log('responseData', responseData);
     const match = responseData.data[0].content[0].text.value.match(/```json([\s\S]*?)```/);
-    
+    console.log('match', match);
     try {
       if (match) {
         const jsonString = match[1].trim();

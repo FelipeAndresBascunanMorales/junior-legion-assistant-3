@@ -30,31 +30,39 @@ export function useAIAssistant() {
     }
   }, []);
 
+  // deprecated
   const generateDocuments = useCallback(async (prompt: string) => {
+    
+    // const enhancedPrompt = await new Promise(resolve => setTimeout(async () => {
+      //   resolve(`Enhanced prompt: <code>${prompt}</code>`)
+      // }, 1000))
+
       // 1.- Enhance the prompt
-      
-      // const enhancedPrompt = await callEnhancerAssistant(prompt);
-      const enhancedPrompt = await new Promise(resolve => setTimeout(async () => {
-        resolve(prompt)
-      }, 1000))
-
-
-      // // 2.- Generate SRS and wireframe content
-      // const newSrsContent = await generateSrs(enhancedPrompt);
-      // setSrsContent(newSrsContent);
-      // const newWireframeContent = await generateWireframe(enhancedPrompt);
-      // setWireframeContent(newWireframeContent);
+      const enhancedPrompt = await callEnhancerAssistant(prompt);
+      // 2.- Generate SRS
+      const newSrsContent = await generateSrs(enhancedPrompt);
+      setSrsContent(newSrsContent);
+      // 3.- Generate wireframe
+      const newWireframeContent = await generateWireframe(enhancedPrompt);
+      setWireframeContent(newWireframeContent);
 
       return {
         enhancedPrompt: enhancedPrompt,
-        // srsContent: newSrsContent,
-        // wireframeContent: newWireframeContent
+        srsContent: newSrsContent,
+        wireframeContent: newWireframeContent
       };
+  }, []);
+
+  const enhancePrompt = useCallback(async (prompt: string) => {
+    return callEnhancerAssistant(prompt);
   }, []);
 
    const generateSrs = useCallback(async (prompt: string) => {
     try {
       return await callGenerateSrs(prompt);
+      // return new Promise(resolve => setTimeout(async () => {
+      //   resolve(`SRS content: <pre><code>${prompt}</code></pre>`)
+      // }, 1000))
     } catch (error) {
       console.error('Failed to generate SRS:', error);
       throw error;
@@ -64,6 +72,9 @@ export function useAIAssistant() {
    const generateWireframe = useCallback(async (prompt: string) => {
     try {
       return await callGenerateWireframe(prompt);
+      // return new Promise(resolve => setTimeout(async () => {
+      //   resolve(`Wireframe content: <pre><code>${prompt}`)
+      // }, 1000))
     } catch (error) {
       console.error('Failed to generate wireframe:', error);
       throw error;
@@ -72,12 +83,12 @@ export function useAIAssistant() {
 
   const generateInitialTree = useCallback(async (prompt: string	) => {
     try {
-      // return parseAssistantResponseToTreeNode(await callGenerateInitialTree());
+      return parseAssistantResponseToTreeNode(await callGenerateInitialTree());
       // fake response
 
-      return new Promise(resolve => setTimeout(async () => {
-        resolve(parseAssistantResponseToTreeNode(aGoodResponse))
-      }, 1000))
+      // return new Promise(resolve => setTimeout(async () => {
+      //   resolve(parseAssistantResponseToTreeNode(aGoodResponse))
+      // }, 1000))
     } catch (error) {
       console.error('Error in generateInitialTree:', error);
       throw error;
@@ -106,9 +117,13 @@ export function useAIAssistant() {
     node: TreeNode | null,
     parentNode: TreeNode | null,
   ) => {
+    console.log('solving a task with AI');
     const repo = await getRepoContents();
+    console.log('repo', repo);
     const solutionToCommit = await callSolveATask(repo, node, parentNode, openai);
+    console.log('solutionToCommit', solutionToCommit);
     const assistantResponse = await commitAssistantResponse(solutionToCommit);
+    console.log('assistantResponse', assistantResponse);
     return assistantResponse;
   }, []);
 
@@ -127,6 +142,7 @@ export function useAIAssistant() {
     srsContent,
     wireframeContent,
     generateContent,
+    enhancePrompt,
     generateInitialTree,
     saveToGithub,
     solveATaskWithAI,

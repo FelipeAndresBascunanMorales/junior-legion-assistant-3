@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock, Unlock, Plus, X, Search, Layers, Hammer, RefreshCcw, Check, WandSparkles, Sparkle } from 'lucide-react';
 import { TreeNode as TreeNodeType } from '../types/tree';
 import clsx from 'clsx';
+import ReactMarkdown from 'react-markdown';
 
 interface TreeNodeProps {
   node: TreeNodeType;
@@ -13,6 +14,7 @@ interface TreeNodeProps {
   onAddChildrenWithAI: (nodeId: string, prompt?: string) => void;
   onPrepare: (nodeId: string) => void;
   onSolveWithAI: (nodeId: string) => void;
+  isZoomed?: boolean;
 }
 
 export function TreeNode({
@@ -24,7 +26,8 @@ export function TreeNode({
   onZoomIn,
   onAddChildrenWithAI,
   onPrepare,
-  onSolveWithAI
+  onSolveWithAI,
+  isZoomed = false
 }: TreeNodeProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(node.title);
@@ -65,12 +68,11 @@ export function TreeNode({
     <div className="relative group">
       <div
         className={clsx(
-          "p-4 bg-white border rounded-lg shadow-sm w-[250px]",
-          node.isLocked
-            ? "border-gray-400"
-            : "border-green-200 hover:border-green-300",
+          "p-4 bg-white border rounded-lg shadow-sm",
+          isZoomed ? "w-[500px]" : "w-[250px]",
+          node.isLocked ? "border-gray-400" : "border-green-200 hover:border-green-300",
           node.solved && "bg-teal-100",
-          "transition-colors"
+          "transition-all duration-200"
         )}
       >
         <div onDoubleClick={handleDoubleClick}>
@@ -93,7 +95,14 @@ export function TreeNode({
               />
               {node?.readyForDevelopment && (
                 <div className="text-sm text-gray-600">
-                  {node.indicationsForDevelopment?.instructions}
+                  <div>
+                    <span className="font-semibold">Instructions:</span>
+                    {node.indicationsForDevelopment?.instructions}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Suggestion:</span>
+                    {node.indicationsForDevelopment?.suggestion}
+                  </div>
                 </div>
               )}
             </div>
@@ -102,7 +111,7 @@ export function TreeNode({
               <h3 className="font-semibold mb-2 flex items-center gap-2">
                 {node.title}
               </h3>
-              <p className="text-sm text-gray-600">{node.description}</p>
+              <ReactMarkdown>{node.description}</ReactMarkdown>
               <div className="flex gap-2">
                 {/* the prepare button */}
                 <div
@@ -130,7 +139,10 @@ export function TreeNode({
               </div>
               {node?.readyForDevelopment && (
                 <div className="text-sm text-gray-600">
-                  {node.indicationsForDevelopment?.instructions}
+                  <span className="font-semibold">Instructions:</span>
+                  {node.indicationsForDevelopment?.instructions && (
+                    <ReactMarkdown>{node.indicationsForDevelopment.instructions}</ReactMarkdown>
+                  )}
                 </div>
               )}
             </div>
@@ -240,6 +252,54 @@ export function TreeNode({
             <Check size={16} />
           </button>
         </div>
+
+        {/* Add detailed view when zoomed */}
+        {isZoomed && (
+          <div className="mt-4 border-t pt-4 space-y-2">
+            <div className="text-sm">
+              <div className="font-semibold">Development Status:</div>
+              <div className="ml-2">
+                <div>Ready: {node.readyForDevelopment ? "Yes" : "No"}</div>
+                <div>Solved: {node.solved ? "Yes" : "No"}</div>
+                {node.isReachableByEntryLevelDevelopers && (
+                  <div>Entry Level Developer Task</div>
+                )}
+              </div>
+            </div>
+
+            {node.indicationsForDevelopment && (
+              <div className="text-sm">
+                <div className="font-semibold">Development Instructions:</div>
+                <div className="ml-2">
+                  <div>{node.indicationsForDevelopment.instructions}</div>
+                  {node.indicationsForDevelopment.suggestion && (
+                    <div className="mt-1">
+                      <span className="font-medium">Suggestion: </span>
+                      {node.indicationsForDevelopment.suggestion}
+                    </div>
+                  )}
+                  {node.indicationsForDevelopment.filesRelated?.length > 0 && (
+                    <div className="mt-1">
+                      <span className="font-medium">Related Files:</span>
+                      <ul className="list-disc ml-4">
+                        {node.indicationsForDevelopment.filesRelated.map((file, index) => (
+                          <li key={index}>{file.path} - {file.whatToDo}</li>
+                          
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {node.indicationsForDevelopment.conditionsForSolved && (
+                    <div className="mt-1">
+                      <span className="font-medium">Conditions to Mark as Solved:</span>
+                      <div className="ml-2">{node.indicationsForDevelopment.conditionsForSolved}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

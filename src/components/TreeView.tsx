@@ -1,5 +1,6 @@
 import { TreeNode as TreeNodeComponent } from './TreeNode';
 import { TreeNode as TreeNodeType } from '../types/tree';
+import { useState } from 'react';
 
 interface TreeViewProps {
   tree: TreeNodeType;
@@ -25,6 +26,13 @@ export function TreeView({
   onSolveWithAI
 }: TreeViewProps) {
 
+  const [zoomedNodeId, setZoomedNodeId] = useState<string | null>(null);
+
+  const handleZoomIn = (nodeId: string) => {
+    setZoomedNodeId(zoomedNodeId === nodeId ? null : nodeId);
+    onZoomIn(nodeId);
+  };
+
   const renderNode = (node: TreeNodeType) => (
     <div key={node.id} className="flex flex-col items-center">
       <div className="relative ">
@@ -34,10 +42,11 @@ export function TreeView({
           onUpdateContent={onUpdateContent}
           onToggleLock={onToggleLock}
           onDelete={onDelete}
-          onZoomIn={onZoomIn}
+          onZoomIn={handleZoomIn}
           onAddChildrenWithAI={onAddChildrenWithAI}
           onPrepare={onPrepare}
           onSolveWithAI={onSolveWithAI}
+          isZoomed={zoomedNodeId === node.id}
         />
         {node.children && node.children.length > 0 && (
           <div className="absolute w-px h-16 border-l-2 border-gray-200 left-1/2 top-full" />

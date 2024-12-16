@@ -103,18 +103,43 @@ export async function commitAssistantResponse(assistantResponse: ContentData, br
     });
     const latestCommitSha = ref.object.sha;
 
-    // 2. Create a new branch for these changes
-    const newBranch = `feature/${task_solved}`;
-    await octokit.rest.git.createRef({
-      owner: REPO_OWNER,
-      repo: REPO_NAME,
-      ref: `refs/heads/${newBranch}`,
-      sha: latestCommitSha,
-    });
+    // // Check if branch already exists
+    // try {
+    //   await octokit.rest.git.getRef({
+    //     owner: REPO_OWNER,
+    //     repo: REPO_NAME,
+    //     ref: `heads/${branch}`,
+    //   });
+    //   // If we get here, branch exists
+    //   throw new Error(`Branch ${branch} already exists`);
+    // } catch (error: any) {
+    //   // 404 means branch doesn't exist, which is what we want
+    //   if (error.status !== 404) {
+    //     throw error;
+    //   }
+    // }
+
+    const newBranch = branch;
+    // if (branch !== "junior-partner-contributor") {
+    //   // 2. Create a new branch for these changes
+    //   newBranch = `feature/${task_solved}`;
+    //   await octokit.rest.git.createRef({
+    //   owner: REPO_OWNER,
+    //   repo: REPO_NAME,
+    //     ref: `refs/heads/${newBranch}`,
+    //     sha: latestCommitSha,
+    //   });
+    // }
+    // else {
+    //   newBranch = branch;
+    // }
 
     // 3. Create blobs for each file
     const fileBlobs = await Promise.all(
       files.map(async file => {
+        console.log('file', file);
+        const cleanPath = file.path.replace(/\/+$/, '').replace('tsx.ts', 'tsx');
+
         const { data: blob } = await octokit.rest.git.createBlob({
           owner: REPO_OWNER,
           repo: REPO_NAME,
@@ -123,7 +148,7 @@ export async function commitAssistantResponse(assistantResponse: ContentData, br
         });
 
         return {
-          path: file.path.replace('tsx.ts', 'tsx'),
+          path: cleanPath,
           sha: blob.sha,
           mode: "100644",
           type: "blob",
@@ -162,7 +187,7 @@ export async function commitAssistantResponse(assistantResponse: ContentData, br
       repo: REPO_NAME,
       title: `Feature: ${task_solved}`,
       head: newBranch,
-      base: branch,
+      base: "main",
       body: `Automated changes by assistant for task: ${task_solved}`,
     });
 

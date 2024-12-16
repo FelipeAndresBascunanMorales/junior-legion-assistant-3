@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
+import ReactMarkdown from "react-markdown";
 
 export default function ShowDocument({
   title,
@@ -25,8 +26,9 @@ export default function ShowDocument({
         <div className="flex items-center gap-2 p-4 rounded-md bg-yellow-200 border-b-2 border-l-2 border-red-500">
           <h2 className="text-sm font-semibold text-gray-800">{title}</h2>
           <span className="text-xs text-gray-500 truncate flex-1">
-            {displayContent.slice(0, 50)}
-            {displayContent.length > 50 ? "..." : ""}
+            <ReactMarkdown>
+              {displayContent.slice(0, 50) + (displayContent.length > 50 ? "..." : "")}
+            </ReactMarkdown>
           </span>
         </div>
       </div>
@@ -52,7 +54,7 @@ export default function ShowDocument({
               </div>
               <div className="bg-gray-50 p-4 rounded-md bg-yellow-200 border-b-2 border-l-2 border-red-500">
                 <pre className="whitespace-pre-wrap text-gray-700">
-                  {displayContent}
+                  <ReactMarkdown>{displayContent}</ReactMarkdown>
                 </pre>
               </div>
             </div>

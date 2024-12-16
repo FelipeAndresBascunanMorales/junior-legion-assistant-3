@@ -8,9 +8,9 @@ import { useState } from "react";
 export default function ControlPanel({ tree, setTree }: { tree: TreeNode, setTree: (tree: TreeNode) => void }) {
   const {
     generateInitialTree,
-    generateDocuments,
     generateSrs,
     generateWireframe,
+    enhancePrompt,
   } = useAIAssistant();
   const [enhancedPrompt, setEnhancedPrompt] = useState("");
   const [srsContent, setSrsContent] = useState("");
@@ -20,16 +20,18 @@ export default function ControlPanel({ tree, setTree }: { tree: TreeNode, setTre
   const handleGenerateInitialTree = async (prompt: string) => {
     try {
       setLoadingStep([true, true, true]);
-      const { enhancedPrompt: enhancedPrompt } = await generateDocuments(prompt);
-      setEnhancedPrompt(enhancedPrompt);
-      
+      const enhancedPrompt = await enhancePrompt(prompt);
+      setEnhancedPrompt(enhancedPrompt);      
       setLoadingStep([false, true, true]);
+      
       const srs = await generateSrs(enhancedPrompt);
       setSrsContent(srs);
       setLoadingStep([false, false, true]);
+      
       const wireframe = await generateWireframe(enhancedPrompt);
       setWireframeContent(wireframe);
       setLoadingStep([false, false, false]);
+      
       const newTree = await generateInitialTree(enhancedPrompt);
       setTree(newTree);
     } catch (error) {
