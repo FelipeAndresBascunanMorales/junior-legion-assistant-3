@@ -6,7 +6,6 @@ import { generateNodeContent } from '../services/openai';
 import { callEnhancerAssistant } from '../services/openai/theEnhancerAssistant';
 import { callAddReadyForDevelopmentAttributesToTask, callGenerateInitialTree, callGenerateSrs, callGenerateTree, callGenerateWireframe } from '../services/openai/theProductManagerAssistant';
 import { callSolveATask, callSolveATaskAutonomously } from '../services/openai/theJuniorDevAssistant';
-import { aGoodResponse } from '../utils/aGoodResponse';
 
 export const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -40,10 +39,10 @@ export function useAIAssistant() {
       // 1.- Enhance the prompt
       const enhancedPrompt = await callEnhancerAssistant(prompt);
       // 2.- Generate SRS
-      const newSrsContent = await generateSrs(enhancedPrompt);
+      const newSrsContent = await callGenerateSrs(enhancedPrompt);
       setSrsContent(newSrsContent);
       // 3.- Generate wireframe
-      const newWireframeContent = await generateWireframe(enhancedPrompt);
+      const newWireframeContent = await callGenerateWireframe(enhancedPrompt);
       setWireframeContent(newWireframeContent);
 
       return {
@@ -81,7 +80,7 @@ export function useAIAssistant() {
     }
    }, []);
 
-  const generateInitialTree = useCallback(async (prompt: string	) => {
+  const generateInitialTree = useCallback(async () => {
     try {
       return parseAssistantResponseToTreeNode(await callGenerateInitialTree());
       // fake response
@@ -95,8 +94,8 @@ export function useAIAssistant() {
     }
   }, []); 
 
-  const generateTree = useCallback(async (prompt: string, node: TreeNode | null, tree: TreeNode | null) => {
-    return parseAssistantResponseToTreeNode(await callGenerateTree(prompt, node, tree));
+  const generateTree = useCallback(async (prompt: string) => {
+    return parseAssistantResponseToTreeNode(await callGenerateTree(prompt));
   }, []);
 
   const addReadyForDevelopmentAttributes = useCallback(async (node: TreeNode, tree: TreeNode) => {
@@ -104,7 +103,7 @@ export function useAIAssistant() {
     return treeWithAttributes;
   }, []);
 
-  const saveToGithub = useCallback(async (content: any) => {
+  const saveToGithub = useCallback(async (content: TreeNode) => {
     try {
       await pushTreeToGithub(content);
     } catch (error) {
@@ -128,11 +127,10 @@ export function useAIAssistant() {
   }, []);
 
   const solveATaskWithAIAutonomously = useCallback(async (
-    node: TreeNode | null,
-    parentNode: TreeNode | null,
+    node: TreeNode | null
   ) => {
     const repo = await getRepoContents();
-    const solutionToCommit = await callSolveATaskAutonomously(repo, node, parentNode, openai);
+    const solutionToCommit = await callSolveATaskAutonomously(repo, node, openai);
     const assistantResponse = await commitAssistantResponse(solutionToCommit);
     return assistantResponse;
   }, []);

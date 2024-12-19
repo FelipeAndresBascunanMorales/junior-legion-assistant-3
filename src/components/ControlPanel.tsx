@@ -32,7 +32,7 @@ export default function ControlPanel({ tree, setTree }: { tree: TreeNode, setTre
       setWireframeContent(wireframe);
       setLoadingStep([false, false, false]);
       
-      const newTree = await generateInitialTree(enhancedPrompt);
+      const newTree = await generateInitialTree();
       setTree(newTree);
     } catch (error) {
       console.error("Error generating tree:", error);
@@ -41,7 +41,7 @@ export default function ControlPanel({ tree, setTree }: { tree: TreeNode, setTre
   return (
     <div className="flex flex-col bg-white rounded-xl shadow-sm p-8 min-h-[600px]">
       <PromptModal onGenerateInitialTree={handleGenerateInitialTree} />
-      <div className="flex justify-around items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-around items-center gap-4">
         <InitialDocuments
           srsContent={srsContent}
           wireframeContent={wireframeContent}

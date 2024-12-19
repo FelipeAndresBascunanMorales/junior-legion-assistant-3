@@ -11,7 +11,7 @@ export function LashTheAI({ active }: { active: boolean }) {
       <button
         className={`flex items-center justify-center gap-2 bg-emerald-700 text-white p-2 px-4 rounded-md border-b-4 border-l-4 border-red-500 hover:bg-emerald-600 transition-colors ${active ? 'opacity-100' : 'opacity-50 cursor-not-allowed'}`}
         onClick={async () => {
-          await solveATaskWithAIAutonomously(tree, null);
+          await solveATaskWithAIAutonomously(tree);
         }}
       >
         <span className="text-sm">Lash</span>

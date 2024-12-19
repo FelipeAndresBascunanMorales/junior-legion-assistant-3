@@ -1,12 +1,11 @@
 import { useState, useCallback } from 'react';
 import { TreeNode } from '../types/tree';
 import { generateId } from '../utils/helpers';
-import { findNode, lockParentNodes } from '../utils/tree-utils';
+import { findNode } from '../utils/tree-utils';
 import { useAIAssistant } from './useAIAssistant'
-import { aGoodResponse } from '../../ai_assistant/aGoodResponse';
 
 export function useTreeState() {
-  const [tree, setTree] = useState<TreeNode>( aGoodResponse || {
+  const [tree, setTree] = useState<TreeNode>({
     id: generateId(),
     title: 'Root',
     description: 'Add a description',
@@ -81,7 +80,7 @@ export function useTreeState() {
   const addChildrenWithAI = useCallback(async (parentId: string, prompt?: string) => {
     const parentNode = findNode(tree, parentId);
     if (!parentNode) return;
-    const updatedSubtask = await generateTree(`separate this task in subtasks please: ${JSON.stringify(parentNode)} ${prompt ? `And consider: ${prompt}` : ''}`, null, tree);
+    const updatedSubtask = await generateTree(`separate this task in subtasks please: ${JSON.stringify(parentNode)} ${prompt ? `And consider: ${prompt}` : ''}`);
     
     setTree((current) => {
       const updatedTree = (currentTree: TreeNode, parentId: string): TreeNode => {
@@ -214,7 +213,7 @@ export function useTreeState() {
     console.log("srsContent: ", srsContent);
     console.log("wireframeContent: ", wireframeContent);
     
-    const newTree = await generateInitialTree(prompt);
+    const newTree = await generateInitialTree();
     console.log("new tree after generateInitialTree: ", newTree);
     setTree(newTree);
   }, [generateDocuments, generateInitialTree]);

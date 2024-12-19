@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Unlock, Plus, X, Search, Layers, Hammer, RefreshCcw, Check, WandSparkles, Sparkle } from 'lucide-react';
+import { Lock, Unlock, Plus, X, Search, Hammer, Check, WandSparkles, Sparkle } from 'lucide-react';
 import { TreeNode as TreeNodeType } from '../types/tree';
 import clsx from 'clsx';
 import ReactMarkdown from 'react-markdown';
@@ -42,10 +42,11 @@ export function TreeNode({
       setEditedDescription(node.description);
     }
   };
-
   const handleContentSubmit = () => {
-    onUpdateContent(node.id, editedTitle, editedDescription);
-    setIsEditing(false);
+    if (editedTitle && editedDescription) {
+      onUpdateContent(node.id, editedTitle, editedDescription);
+      setIsEditing(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

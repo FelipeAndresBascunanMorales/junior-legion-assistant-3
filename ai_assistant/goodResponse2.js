@@ -1,4 +1,4 @@
-{
+export const aGoodResponse2 = {
     "id": "inspirational-app",
     "title": "Build Daily Inspirational Message Web App",
     "description": "Develop a web application that delivers a daily inspirational message from God, with a corresponding background color and social media sharing.",

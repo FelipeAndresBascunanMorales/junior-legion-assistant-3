@@ -156,12 +156,17 @@ export async function commitAssistantResponse(assistantResponse: ContentData, br
       })
     );
 
+    //fixed with ai... i must check this behavior
     // 4. Create a tree
     const { data: tree } = await octokit.rest.git.createTree({
       owner: REPO_OWNER,
       repo: REPO_NAME,
       base_tree: latestCommitSha,
-      tree: fileBlobs,
+      tree: fileBlobs.map(blob => ({
+        ...blob,
+        mode: "100644" as const,
+        type: "blob" as const
+      })),
     });
 
     // 5. Create a commit

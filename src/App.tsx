@@ -14,7 +14,7 @@ function App() {
             <p className=" border-2 text-justify border-emerald-700 w-min p-2 text-2xl font-bold">DO NOT DEVELOP MY APP .</p>
           </div>
         </h1>
-        <div className="bg-white rounded-xl shadow-sm p-8 min-h-[600px]">
+        <div className="bg-red-700 rounded-xl shadow-sm p-8 min-h-[600px]">
           <ControlPanel setTree={setTree} tree={tree}/>
           <TreeView
             key={tree.id}

@@ -3,8 +3,14 @@ import { z } from 'zod';
 // Schema for the enhanced prompt (Output of Improver Assistant)
 export const EnhancedPromptSchema = z.string();
 
-// Schema for task tree nodes (Output of Task Generator Assistant)
-export const TaskNodeSchema: z.ZodType<any> = z.lazy(() => 
+// Schema for task tree nodes (Output of Task Generator Assistant) 
+export interface TaskNode {
+  id: string;
+  title: string;
+  children?: TaskNode[];
+}
+
+export const TaskNodeSchema: z.ZodType<TaskNode> = z.lazy(() =>
   z.object({
     id: z.string(),
     title: z.string(),
@@ -49,7 +55,7 @@ export const validateAssistantResponse = {
 export type AssistantChain = {
   improver: (rawPrompt: string) => Promise<EnhancedPrompt>;
   taskGenerator: (enhancedPrompt: EnhancedPrompt) => Promise<TaskTree>;
-  implementer: (task: TaskNodeSchema, tree: TaskTree) => Promise<ImplementationDetails>;
+  implementer: (task: TaskNode, tree: TaskTree) => Promise<ImplementationDetails>;
 };
 
 

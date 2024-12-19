@@ -34,7 +34,7 @@ export function TreeView({
   };
 
   const renderNode = (node: TreeNodeType) => (
-    <div key={node.id} className="flex flex-col items-center">
+    <div key={node.id} className="flex flex-col items-center justify-center">
       <div className="relative ">
         <TreeNodeComponent
           node={node}
@@ -54,7 +54,7 @@ export function TreeView({
       </div>
       {node.children && node.children.length > 0 && (
         <div className="flex gap-8 mt-16">
-          <div className="flex gap-8 pt-16 border-2 px-2 pb-16 bg-emerald-400/20 rounded-lg ">
+          <div className="flex gap-8 pt-16 border-2 px-2 pb-16 bg-emerald-400/80 rounded-lg">
             {node.children.map(childNode => renderNode(childNode))}
           </div>
         </div>

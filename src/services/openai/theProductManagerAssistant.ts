@@ -15,7 +15,7 @@ export async function sendPrompt(prompt: string) {
   console.log("threadId: ", threadId);
   console.log("prompt: ", prompt);
 
-  const message = await openai.beta.threads.messages.create(threadId, {
+  await openai.beta.threads.messages.create(threadId, {
     role: "user",
     content: prompt
   });
@@ -26,8 +26,12 @@ export async function sendPrompt(prompt: string) {
 
   if (run.status === 'completed') {
     const responseData = await openai.beta.threads.messages.list(threadId);
-    const newTree = JSON.parse(responseData.data[0].content[0].text.value);
-    return newTree;
+    const content = responseData.data[0].content[0];
+    if ('text' in content) {
+      const newTree = JSON.parse(content.text.value);
+      return newTree;
+    }
+    throw new Error('Expected text response from OpenAI');
   }
 }
 
@@ -46,8 +50,6 @@ export async function callGenerateInitialTree(
 
   export async function callGenerateTree(
     prompt: string,
-    currentNode?: TreeNode | null,
-    tree?: TreeNode | null
   ): Promise<TreeNode> {
     return sendPrompt(`Generate a task tree for the previous specification. ${prompt}`);
   }
@@ -61,7 +63,8 @@ export async function callAddReadyForDevelopmentAttributesToTask(
   // wake up the assistant
   const assistant = await openai.beta.assistants.retrieve(PROJECT_MANAGER_ASSISTANT_ID);
 
-  const { children, ...lonelyTask } = currentNode;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { children, ...lonelyTask } = currentNode || {};
 
   if (!prompt) {
     prompt = "Add the readyForDevelopment related attributes to this task: " + JSON.stringify(lonelyTask) + "this is the tree for reference: " + JSON.stringify(tree) ;
@@ -73,7 +76,7 @@ export async function callAddReadyForDevelopmentAttributesToTask(
     threadId = thread.id;
   }
 
-  const message = await openai.beta.threads.messages.create(threadId, {
+  await openai.beta.threads.messages.create(threadId, {
     role: "user",
     content: prompt
   });
@@ -85,8 +88,12 @@ export async function callAddReadyForDevelopmentAttributesToTask(
 
   if (run.status === 'completed') {
     const responseData = await openai.beta.threads.messages.list(run.thread_id);
-    const newTree = JSON.parse(responseData.data[0].content[0].text.value);
-    return newTree;
+    const content = responseData.data[0].content[0];
+    if ('text' in content) {
+      const newTree = JSON.parse(content.text.value);
+      return newTree;
+    }
+    throw new Error('Expected text response from OpenAI');
   } else {
     throw new Error(`OpenAI run failed with status: ${run.status}`);
   }
