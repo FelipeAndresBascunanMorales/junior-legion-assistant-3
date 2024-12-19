@@ -24,7 +24,7 @@ export async function submitFiles(contents: any, openai: OpenAI) {
   });
 
   
-  await openai.beta.assistants.update(SENIOR_DEVELOPER_ASSISTANT_ID, {
+  await openai.beta.assistants.update(JUNIOR_DEVELOPER_ASSISTANT_ID, {
     tool_resources: { file_search: { vector_store_ids: [vectorStore.id] } },
   });
 
@@ -65,7 +65,7 @@ export async function callSolveATask(
     tool_resources: { file_search: { vector_store_ids: [vectorStore.id] } },
   });
 
-  console.log('assistant updated', SENIOR_DEVELOPER_ASSISTANT_ID);
+  console.log('assistant updated', JUNIOR_DEVELOPER_ASSISTANT_ID);
 
   const thread = await openai.beta.threads.create();
 
@@ -85,7 +85,7 @@ export async function callSolveATask(
   });
 
   const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
-    assistant_id: SENIOR_DEVELOPER_ASSISTANT_ID,
+    assistant_id: JUNIOR_DEVELOPER_ASSISTANT_ID,
   });
 
   console.log('run created', run);
@@ -135,7 +135,7 @@ export async function callSolveATaskAutonomously(
       file_ids: files.map((file: any) => file.id)
     });
   
-    await openai.beta.assistants.update(SENIOR_DEVELOPER_ASSISTANT_ID, {
+    await openai.beta.assistants.update(JUNIOR_DEVELOPER_ASSISTANT_ID, {
       tool_resources: { file_search: { vector_store_ids: [vectorStore.id] } },
     });
   
@@ -152,7 +152,7 @@ export async function callSolveATaskAutonomously(
     });
   
     const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
-      assistant_id: SENIOR_DEVELOPER_ASSISTANT_ID,
+      assistant_id: JUNIOR_DEVELOPER_ASSISTANT_ID,
     });
   
     if (run.status === 'completed') {
